@@ -1,4 +1,4 @@
-#include "kernel.h"
+#include "kernel.hh"
 
 /*
 16 bit video buffer elements(register ax)
@@ -41,7 +41,7 @@ void init_vga(uint8 fore_color, uint8 back_color)
   clear_vga_buffer(&vga_buffer, fore_color, back_color);  //clear buffer
 }
 
-void kernel_entry()
+extern "C" void kernel_entry()
 {
   //first init vga with fore & back colors
   init_vga(WHITE, BLACK);

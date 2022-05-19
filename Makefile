@@ -2,8 +2,8 @@
 boot.o : boot.s
 	as --32 boot.s -o boot.o
 
-kernel.o : kernel.c
-	gcc -m32 -c kernel.c -o kernel.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
+kernel.o : kernel.cc
+	gcc -m32 -c kernel.cc -o kernel.o -ffreestanding -O2 -Wall -Wextra
 
 kernel : linker.ld kernel.o boot.o
 	ld -m elf_i386 -T linker.ld kernel.o boot.o -o kernel -nostdlib
