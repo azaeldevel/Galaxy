@@ -1,3 +1,6 @@
+ ifndef  BUILD
+ BUILD=build
+ endif
 
 $(BUILD)/boot.o : x86/boot.s
 	as --32 x86/boot.s -o $(BUILD)/boot.o
