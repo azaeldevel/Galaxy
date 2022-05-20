@@ -1,4 +1,2 @@
-*.iso
-*.o
 isodir/
-kernel
+build/
