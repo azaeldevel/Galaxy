@@ -1,4 +1,5 @@
 #include "kernel.hh"
+#include "video.hh"
 
 /*
 16 bit video buffer elements(register ax)
@@ -43,11 +44,7 @@ void init_vga(uint8 fore_color, uint8 back_color)
 
 extern "C" void kernel_entry()
 {
-  //first init vga with fore & back colors
   init_vga(WHITE, BLACK);
-
-  //assign each ASCII character to video buffer
-  //you can change colors here
   vga_buffer[0] = vga_entry('H', WHITE, BLACK);
   vga_buffer[1] = vga_entry('e', WHITE, BLACK);
   vga_buffer[2] = vga_entry('l', WHITE, BLACK);
@@ -60,3 +57,13 @@ extern "C" void kernel_entry()
   vga_buffer[9] = vga_entry('l', WHITE, BLACK);
   vga_buffer[10] = vga_entry('d', WHITE, BLACK);
 }
+/*extern "C" void kernel_entry()
+{
+  kernel::VGA video;
+
+  video.get(0) = kernel::VGA::convert('H', WHITE, BLACK);
+  video.get(1) = kernel::VGA::convert('e', WHITE, BLACK);
+  video.get(2) = kernel::VGA::convert('l', WHITE, BLACK);
+  video.get(3) = kernel::VGA::convert('l', WHITE, BLACK);
+  video.get(4) = kernel::VGA::convert('o', WHITE, BLACK);
+}*/
