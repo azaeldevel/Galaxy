@@ -14,7 +14,6 @@ const uint16 VGA::vga_zise = 2200;
 
 VGA::VGA()
 {
-	//clear(WHITE, BLACK);
 }
 VGA::VGA(uint8 fc,uint8 bc)
 {
