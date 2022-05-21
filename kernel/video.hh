@@ -17,7 +17,7 @@ public:
 class VGA
 {
 public:
-	enum colors 
+	enum Colors 
 	{
 		BLACK,
 		BLUE,
@@ -36,19 +36,23 @@ public:
 		YELLOW,
 		WHITE,
 	};
+	struct Cell
+	{
+		uint16 letter : 8, forecolor : 4, backcolor : 4; 
+	};
 public:
 	VGA();
 	VGA(uint8 fore_color,uint8 back_color);
 	
-	uint16& get(uint16);
+	uint16& word(uint16);
+	Cell& cell(uint16);
 	
-	void clear(uint8 fore_color, uint8 back_color);
-	
-	
+	void clear(uint8 fore_color, uint8 back_color);	
 	static uint16 convert(unsigned char ch, uint8 fore_color, uint8 back_color);
 	
 private:
 	static uint16* vga_addres;
+	static Cell* vga_addres_cells;
 	static const uint16 vga_zise;
 };
 

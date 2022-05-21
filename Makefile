@@ -3,7 +3,7 @@
  endif
 
 CC = gcc
-CFLAGS = -m32 -O2 -w -trigraphs -fno-builtin  -fno-exceptions -fno-stack-protector   -fno-rtti -nostdlib -nodefaultlibs
+CFLAGS = -m32 -O2 -w -trigraphs -fno-builtin  -fno-exceptions -fno-stack-protector -fno-rtti -nostdlib -nodefaultlibs
 CCFLAGS = $(CFLAGS) -std=c++20
 
 $(BUILD_DIR)/%.o : kernel/%.cc

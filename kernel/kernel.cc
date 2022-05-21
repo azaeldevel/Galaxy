@@ -59,11 +59,20 @@ void init_vga(uint8 fore_color, uint8 back_color)
 }*/
 extern "C" void kernel_entry()
 {
-  kernel::VGA video;
-
-  video.get(0) = kernel::VGA::convert('H', WHITE, BLACK);
-  video.get(1) = kernel::VGA::convert('e', WHITE, BLACK);
-  video.get(2) = kernel::VGA::convert('l', WHITE, BLACK);
-  video.get(3) = kernel::VGA::convert('l', WHITE, BLACK);
-  video.get(4) = kernel::VGA::convert('o', WHITE, BLACK);
+  	kernel::VGA video;
+  	
+	kernel::VGA::Cell cell;	
+	cell.forecolor = WHITE;
+	cell.backcolor = BLACK;
+	
+	cell.letter = 'H';
+  	video.cell(0) = cell;
+  	cell.letter = 'e';
+  	video.cell(1) = cell;
+  	cell.letter = 'l';
+  	video.cell(2) = cell;
+  	cell.letter = 'l';
+  	video.cell(3) = cell;
+  	cell.letter = 'o';
+  	video.cell(4) = cell;
 }
