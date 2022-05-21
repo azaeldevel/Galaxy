@@ -5,5 +5,5 @@ extern "C" void kernel_entry()
 {
   	kernel::VGA video(kernel::VGA::BLACK,kernel::VGA::WHITE);
   	
-  	video.write("iniciando...");
+  	video.print("iniciando...");
 }

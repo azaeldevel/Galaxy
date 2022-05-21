@@ -66,7 +66,7 @@ uint16 VGA::convert(unsigned char ch, uint8 fc, uint8 bc)
   	return ax;
 }
 
-void VGA::write(const char* str)
+void VGA::print(const char* str)
 {
 	uint16 i = 0;
 	while(str[i] != '\0')

@@ -47,7 +47,7 @@ public:
 	uint16& word(uint16);
 	Cell& cell(uint16);
 	
-	void write(const char*);
+	void print(const char*);
 	
 	void clear(uint8 forecolor, uint8 backcolor);	
 	static uint16 convert(unsigned char ch, uint8 forecolor, uint8 backcolor);
