@@ -42,13 +42,15 @@ public:
 	};
 public:
 	VGA();
-	VGA(uint8 fore_color,uint8 back_color);
+	VGA(uint8 forecolor,uint8 backcolor);
 	
 	uint16& word(uint16);
 	Cell& cell(uint16);
 	
-	void clear(uint8 fore_color, uint8 back_color);	
-	static uint16 convert(unsigned char ch, uint8 fore_color, uint8 back_color);
+	void write(const char*);
+	
+	void clear(uint8 forecolor, uint8 backcolor);	
+	static uint16 convert(unsigned char ch, uint8 forecolor, uint8 backcolor);
 	
 private:
 	static uint16* vga_addres;

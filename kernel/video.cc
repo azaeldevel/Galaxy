@@ -8,6 +8,17 @@ namespace kernel
 
 
 //VGA
+/*
+16 bit video buffer elements
+8 bits(ah) higher : 
+  lower 4 bits - forec olor
+  higher 4 bits - back color
+
+8 bits(al) lower :
+  8 bits : ASCII character to print
+*/
+
+
 uint16* VGA::vga_addres = (uint16*)0xB8000;
 VGA::Cell* VGA::vga_addres_cells = (VGA::Cell*)0xB8000;
 const uint16 VGA::vga_zise = 2200;
@@ -55,4 +66,13 @@ uint16 VGA::convert(unsigned char ch, uint8 fc, uint8 bc)
   	return ax;
 }
 
+void VGA::write(const char* str)
+{
+	uint16 i = 0;
+	while(str[i] != '\0')
+	{
+		vga_addres_cells[i].letter = str[i];
+		i++;
+	}
+}
 }
