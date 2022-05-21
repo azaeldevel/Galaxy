@@ -42,7 +42,7 @@ void init_vga(uint8 fore_color, uint8 back_color)
   clear_vga_buffer(&vga_buffer, fore_color, back_color);  //clear buffer
 }
 
-extern "C" void kernel_entry()
+/*extern "C" void kernel_entry()
 {
   init_vga(WHITE, BLACK);
   vga_buffer[0] = vga_entry('H', WHITE, BLACK);
@@ -56,8 +56,8 @@ extern "C" void kernel_entry()
   vga_buffer[8] = vga_entry('r', WHITE, BLACK);
   vga_buffer[9] = vga_entry('l', WHITE, BLACK);
   vga_buffer[10] = vga_entry('d', WHITE, BLACK);
-}
-/*extern "C" void kernel_entry()
+}*/
+extern "C" void kernel_entry()
 {
   kernel::VGA video;
 
@@ -66,4 +66,4 @@ extern "C" void kernel_entry()
   video.get(2) = kernel::VGA::convert('l', WHITE, BLACK);
   video.get(3) = kernel::VGA::convert('l', WHITE, BLACK);
   video.get(4) = kernel::VGA::convert('o', WHITE, BLACK);
-}*/
+}
