@@ -1,5 +1,5 @@
 
-#include "video.hh"
+#include "VGA.hh"
 
 
 namespace kernel

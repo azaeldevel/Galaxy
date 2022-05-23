@@ -1,5 +1,5 @@
 #include "kernel.hh"
-#include "video.hh"
+#include "VGA.hh"
 
 extern "C" void kernel_entry()
 {
