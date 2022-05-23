@@ -19,7 +19,7 @@ namespace kernel
 */
 
 
-uint16* VGA::vga_addres = (uint16*)0xB8000;
+uint16* VGA::vga_addres = (uint16*)0xB8000;//hasta C7FFF
 VGA::Cell* VGA::vga_addres_cells = (VGA::Cell*)0xB8000;
 const uint16 VGA::vga_zise = 2200;
 
@@ -74,5 +74,8 @@ void VGA::print(const char* str)
 		vga_addres_cells[i].letter = str[i];
 		i++;
 	}
+}
+void VGA::new_line()
+{
 }
 }

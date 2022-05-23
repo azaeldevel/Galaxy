@@ -2,7 +2,7 @@
 #ifndef OCTETOS_OS_KERNEL_VGA_HH
 #define OCTETOS_OS_KERNEL_VGA_HH
 
-#include "Video.hh"
+#include "../kernel/Video.hh"
 
 namespace kernel
 {
@@ -41,6 +41,7 @@ public:
 	Cell& cell(uint16);
 	
 	virtual void print(const char*);
+	virtual void new_line();
 	
 	void clear(uint8 forecolor, uint8 backcolor);	
 	static uint16 convert(unsigned char ch, uint8 forecolor, uint8 backcolor);

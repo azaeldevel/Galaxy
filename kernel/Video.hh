@@ -11,6 +11,7 @@ class Video
 {
 public:
 	virtual void print(const char*) = 0;
+	virtual void new_line() = 0;
 };
 
 }
