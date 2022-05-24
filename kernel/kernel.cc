@@ -1,14 +1,12 @@
 #include "kernel.hh"
-#include "../x86/VGA.hh"
+#include "../x86/Bios.hh"
 
 extern "C" void kernel_entry()
 {
-  	kernel::VGA video(kernel::VGA::BLACK,kernel::VGA::WHITE);
+  	kernel::Bios bios;
   	
-  	video.print("0123456789");
-  	/*video.print("          ");
-  	video.print("0123456789");
-  	video.print("          ");
-  	video.print("0123456789");
-  	video.print("          ");*/
+  	bios.print('A');
+  	bios.print('A');
+  	bios.print('A');
+  	bios.print('A');
 }
