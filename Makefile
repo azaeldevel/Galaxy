@@ -16,7 +16,7 @@ $(BUILD_DIR)/floppy.img : arch/x86/bootloader.s
 	dd if=$(BUILD_DIR)/bootloader of=$(BUILD_DIR)/floppy.img
 	
 booting : $(BUILD_DIR)/floppy.img
-	qemu-system-i386 -fda $(BUILD_DIR)/floppy.img
+	qemu-system-i386 -fda $^
 
 $(BUILD_DIR)/%.o : kernel/%.cc
 	$(CC) -c $^ -o $@ $(CCFLAGS)
