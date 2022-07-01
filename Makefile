@@ -47,9 +47,12 @@ $(BUILD_DIR)/%.o : arch/x86/%.cc
 	$(CC) -c $^ -o $@ $(CCFLAGS_32)
 
 $(BUILD_DIR)/boot.o : arch/x86/boot.s
-	as --32 arch/x86/boot.s -o $@
+	as --32 $^ -o $@
 
-$(BUILD_DIR)/kernel : linker.ld $(BUILD_DIR)/boot.o  $(BUILD_DIR)/Bios.o $(BUILD_DIR)/Video.o $(BUILD_DIR)/VGA.o $(BUILD_DIR)/kernel.o
+$(BUILD_DIR)/cheers.o : arch/x86/cheers.s
+	as --32 $^ -o $@
+	
+$(BUILD_DIR)/kernel : linker.ld $(BUILD_DIR)/cheers.o $(BUILD_DIR)/boot.o  $(BUILD_DIR)/Bios.o $(BUILD_DIR)/Video.o $(BUILD_DIR)/VGA.o $(BUILD_DIR)/kernel.o
 	ld -m elf_i386 -T $^ -o $@ -nostdlib
 	grub-file --is-x86-multiboot $@
 
