@@ -1,8 +1,6 @@
 # https://stackoverflow.com/questions/13901261/calling-assembly-function-from-c
 .section .data
-    string: .ascii  "Hello from assembler.."
-    length: .quad   . - string
-
+    
 .section .text
 .global cheers
 .type cheers, @function
@@ -10,58 +8,58 @@
 cheers:
 	mov $0xB8000, %edi
 	
-	mov $'I', (%edi)
+	movb $'I', (%edi)
 	inc %edi
-	mov $15, (%edi)
+	movb $15, (%edi)
 	
 	inc %edi
-	mov $'n', (%edi)
+	movb $'n', (%edi)
 	inc %edi
-	mov $15, (%edi)
+	movb $15, (%edi)
 		
 	inc %edi
-	mov $'i', (%edi)
+	movb $'i', (%edi)
 	inc %edi
-	mov $15, (%edi)
+	movb $15, (%edi)
 	
 	inc %edi
-	mov $'c', (%edi)
+	movb $'c', (%edi)
 	inc %edi
-	mov $15, (%edi)
+	movb $15, (%edi)
 	
 	inc %edi
-	mov $'i', (%edi)
+	movb $'i', (%edi)
 	inc %edi
-	mov $15, (%edi)
+	movb $15, (%edi)
 	
 	inc %edi
-	mov $'a', (%edi)
+	movb $'a', (%edi)
 	inc %edi
-	mov $15, (%edi)
+	movb $15, (%edi)
 	
 	inc %edi
-	mov $'n', (%edi)
+	movb $'n', (%edi)
 	inc %edi
-	mov $15, (%edi)
+	movb $15, (%edi)
 		
 	inc %edi
-	mov $'d', (%edi)
+	movb $'d', (%edi)
 	inc %edi
-	mov $15, (%edi)
+	movb $15, (%edi)
 	
 	inc %edi
-	mov $'o', (%edi)
+	movb $'o', (%edi)
 	inc %edi
-	mov $15, (%edi)
+	movb $15, (%edi)
 	
 	inc %edi
-	mov $'.', (%edi)
+	movb $'.', (%edi)
 	inc %edi
-	mov $15, (%edi)
+	movb $15, (%edi)
 	
 	inc %edi
-	mov $'.', (%edi)
+	movb $'.', (%edi)
 	inc %edi
-	mov $15, (%edi)
+	movb $15, (%edi)
 	
 	ret

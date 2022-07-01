@@ -1,21 +1,26 @@
 #include "kernel.hh"
 #include "../arch/x86/VGA.hh"
-//#include "../arch/x86/Bios.hh"
+#include "../arch/x86/Bios.hh"
 
-extern "C" void cheers(void);
+//extern "C" void cheers(void);
 
 extern "C" void kernel_entry()
 {
-	/*kernel::VGA vga;
-	vga.print("OS iniciando..\n");
-	vga.print("OS iniciando..\n");*/
 	
-  	//kernel::Bios bios;
+	kernel::VGA vga;
+	
   	//bios.print("Loading BIOS funtion..");
   	/*bios.print('A');
   	bios.print('A');
   	bios.print('A');
-  	bios.print('A');*/
+  	bios.print('A');
+  	*/
   	
-  	cheers();
+  	vga.disable_cursor();
+  	vga.print("Iniciando..");
+  	
+  	uint8 vx,vy;
+  	vga.get_cursor_position(vx,vy);
+  	vga.print(vx);
+  	//cheers();
 }
