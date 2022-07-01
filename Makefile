@@ -9,13 +9,13 @@ CCFLAGS = $(CFLAGS) -std=c++20
 $(BUILD_DIR)/bootloader.o : 
 	
 	
-bootloader : arch/x86/bootloader.s
+$(BUILD_DIR)/floppy.img : arch/x86/bootloader.s
 	as $^ -o $(BUILD_DIR)/bootloader.o
 	ld -o $(BUILD_DIR)/bootloader --oformat binary -e init -Ttext 0x7c00 $(BUILD_DIR)/bootloader.o 
 	dd if=/dev/zero of=$(BUILD_DIR)/floppy.img bs=512 count=2880
 	dd if=$(BUILD_DIR)/bootloader of=$(BUILD_DIR)/floppy.img
 	
-booting : bootloader
+booting : $(BUILD_DIR)/floppy.img
 	qemu-system-i386 -fda $(BUILD_DIR)/floppy.img
 
 $(BUILD_DIR)/%.o : kernel/%.cc
