@@ -10,7 +10,7 @@ namespace kernel
 class VGA : public Video
 {
 public:
-	enum Colors 
+	enum Colors : unsigned char
 	{
 		BLACK,
 		BLUE,

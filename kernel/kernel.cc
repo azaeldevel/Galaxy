@@ -5,7 +5,8 @@
 extern "C" void kernel_entry()
 {
 	kernel::VGA vga;
-	vga.print("OS iniciando..");
+	vga.print("OS iniciando..\n");
+	vga.print("OS iniciando..\n");
 	
   	//kernel::Bios bios;
   	//bios.print("Loading BIOS funtion..");
