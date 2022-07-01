@@ -1,3 +1,5 @@
+asm(".code16gcc");
+
 
 void print(char c)
 {
