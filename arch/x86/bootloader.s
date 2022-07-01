@@ -55,7 +55,7 @@ movb $0x0e, %ah
 int  $0x10
 
 #print letter 'l' onto the screen
-movb 'l' , %al
+movb $'l' , %al
 movb $0x0e, %ah
 int  $0x10
 
