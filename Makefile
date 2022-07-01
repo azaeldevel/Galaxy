@@ -9,11 +9,11 @@ CCFLAGS = $(CFLAGS) -std=c++20
 $(BUILD_DIR)/%.o : kernel/%.cc
 	$(CC) -c $^ -o $@ $(CCFLAGS)
 	
-$(BUILD_DIR)/%.o : x86/%.cc
+$(BUILD_DIR)/%.o : arch/x86/%.cc
 	$(CC) -c $^ -o $@ $(CCFLAGS)
 
-$(BUILD_DIR)/boot.o : x86/boot.s
-	as --32 x86/boot.s -o $(BUILD_DIR)/boot.o
+$(BUILD_DIR)/boot.o : arch/x86/boot.s
+	as --32 arch/x86/boot.s -o $(BUILD_DIR)/boot.o
 
 $(BUILD_DIR)/kernel : linker.ld $(BUILD_DIR)/boot.o  $(BUILD_DIR)/Bios.o $(BUILD_DIR)/Video.o $(BUILD_DIR)/VGA.o $(BUILD_DIR)/kernel.o
 	ld -m elf_i386 -T $^ -o $(BUILD_DIR)/kernel -nostdlib
@@ -26,7 +26,7 @@ $(BUILD_DIR)/Meta-SO.iso : $(BUILD_DIR)/kernel
 	grub-mkrescue -o $(BUILD_DIR)/Meta-SO.iso $(BUILD_DIR)/isodir
 
 run : $(BUILD_DIR)/Meta-SO.iso
-	qemu-system-x86_64 -cdrom $(BUILD_DIR)/Meta-SO.iso
+	qemu-system-i386 -cdrom $(BUILD_DIR)/Meta-SO.iso
 	
 build : $(BUILD_DIR)/kernel
 

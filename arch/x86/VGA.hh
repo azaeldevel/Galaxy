@@ -2,7 +2,7 @@
 #ifndef OCTETOS_OS_KERNEL_VGA_HH
 #define OCTETOS_OS_KERNEL_VGA_HH
 
-#include "../kernel/Video.hh"
+#include "../../kernel/Video.hh"
 
 namespace kernel
 {
