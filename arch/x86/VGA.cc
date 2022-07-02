@@ -110,9 +110,14 @@ void VGA::print(const char* str)
 	}
 	update_cursor(x,y);
 }
+struct Bits
+{
+	unsigned char b0 : 1, b1 : 1, b2 : 1, b3 : 1, b4 : 1, b5 : 1, b6 : 1, b7 : 1;
+};
 void VGA::print(unsigned char number)
 {
-	if(number & 128)
+	const Bits* bits = reinterpret_cast<const Bits*>(&number);
+	if(bits->b7)
 	{
 		write('1');
 	}
@@ -121,7 +126,7 @@ void VGA::print(unsigned char number)
 		write('0');
 	}
 	
-	if(number & 64)
+	if(bits->b6)
 	{
 		write('1');
 	}
@@ -130,7 +135,7 @@ void VGA::print(unsigned char number)
 		write('0');
 	}
 	
-	if(number & 32)
+	if(bits->b5)
 	{
 		write('1');
 	}
@@ -139,7 +144,7 @@ void VGA::print(unsigned char number)
 		write('0');
 	}
 	
-	if(number & 16)
+	if(bits->b4)
 	{
 		write('1');
 	}
@@ -148,7 +153,7 @@ void VGA::print(unsigned char number)
 		write('0');
 	}
 	
-	if(number & 8)
+	if(bits->b3)
 	{
 		write('1');
 	}
@@ -157,7 +162,7 @@ void VGA::print(unsigned char number)
 		write('0');
 	}
 	
-	if(number & 4)
+	if(bits->b2)
 	{
 		write('1');
 	}
@@ -166,7 +171,7 @@ void VGA::print(unsigned char number)
 		write('0');
 	}
 	
-	if(number & 2)
+	if(bits->b1)
 	{
 		write('1');
 	}
@@ -175,7 +180,7 @@ void VGA::print(unsigned char number)
 		write('0');
 	}
 	
-	if(number & 1)
+	if(bits->b0)
 	{
 		write('1');
 	}
@@ -187,8 +192,9 @@ void VGA::print(unsigned char number)
 	update_cursor(x,y);
 }
 void VGA::print(signed char number)
-{
-	if(number & 128)
+{	
+	const Bits* bits = reinterpret_cast<const Bits*>(&number);
+	if(bits->b7)
 	{
 		write('1');
 	}
@@ -197,7 +203,7 @@ void VGA::print(signed char number)
 		write('0');
 	}
 	
-	if(number & 64)
+	if(bits->b6)
 	{
 		write('1');
 	}
@@ -206,7 +212,7 @@ void VGA::print(signed char number)
 		write('0');
 	}
 	
-	if(number & 32)
+	if(bits->b5)
 	{
 		write('1');
 	}
@@ -215,7 +221,7 @@ void VGA::print(signed char number)
 		write('0');
 	}
 	
-	if(number & 16)
+	if(bits->b4)
 	{
 		write('1');
 	}
@@ -224,7 +230,7 @@ void VGA::print(signed char number)
 		write('0');
 	}
 	
-	if(number & 8)
+	if(bits->b3)
 	{
 		write('1');
 	}
@@ -233,7 +239,7 @@ void VGA::print(signed char number)
 		write('0');
 	}
 	
-	if(number & 4)
+	if(bits->b2)
 	{
 		write('1');
 	}
@@ -242,7 +248,7 @@ void VGA::print(signed char number)
 		write('0');
 	}
 	
-	if(number & 2)
+	if(bits->b1)
 	{
 		write('1');
 	}
@@ -251,7 +257,7 @@ void VGA::print(signed char number)
 		write('0');
 	}
 	
-	if(number & 1)
+	if(bits->b0)
 	{
 		write('1');
 	}
@@ -265,18 +271,14 @@ void VGA::print(signed char number)
 void VGA::print(signed short n)
 {
 	unsigned char* number = (unsigned char*)&n;
-	for(signed char i = 0; i < sizeof(n); i++)
-	{
-		print(number[i]);
-	}
+	print(number[1]);
+	print(number[0]);
 }
 void VGA::print(unsigned short n)
 {
 	unsigned char* number = (unsigned char*)&n;
-	for(unsigned char i = 0; i < sizeof(n); i++)
-	{
-		print(number[i]);
-	}
+	print(number[1]);
+	print(number[0]);
 }
 void VGA::new_line()
 {

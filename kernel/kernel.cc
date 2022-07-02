@@ -39,6 +39,8 @@ extern "C" void kernel_entry()
   	vga.new_line();
   	vga.print((unsigned char)73);
   	vga.new_line();
+  	vga.print((signed char)-73);
+  	vga.new_line();
   	vga.print((unsigned char)128);
   	vga.new_line();
   	vga.print((unsigned char)129);
