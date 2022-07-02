@@ -2,7 +2,7 @@
 #ifndef OCTETOS_OS_KERNEL_VIDEO_HH
 #define OCTETOS_OS_KERNEL_VIDEO_HH
 
-#include "defines.hh"
+
 
 namespace kernel
 {

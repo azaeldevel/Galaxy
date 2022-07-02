@@ -3,7 +3,7 @@
 #ifndef OCTETOS_OS_KERNEL_BIOS_HH
 #define OCTETOS_OS_KERNEL_BIOS_HH
 
-#include "../../kernel/defines.hh"
+#include "../../meta/defines.hh"
 
 
 

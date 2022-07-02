@@ -1,4 +1,5 @@
 
+#include "../../meta/tools.hh"
 #include "VGA.hh"
 
 
@@ -110,10 +111,7 @@ void VGA::print(const char* str)
 	}
 	update_cursor(x,y);
 }
-struct Bits
-{
-	unsigned char b0 : 1, b1 : 1, b2 : 1, b3 : 1, b4 : 1, b5 : 1, b6 : 1, b7 : 1;
-};
+
 void VGA::print(unsigned char number)
 {
 	const Bits* bits = reinterpret_cast<const Bits*>(&number);
