@@ -41,8 +41,11 @@ public:
 	uint16& word(uint16);
 	Cell& cell(uint16);
 	
+	virtual void write(char);
+	virtual void print(char);
 	virtual void print(const char*);
-	virtual void print(uint8);
+	virtual void print(unsigned char);
+	virtual void print(signed char);
 	virtual void new_line();
 	
 	void clear(uint8 forecolor, uint8 backcolor);	
@@ -52,12 +55,16 @@ public:
 	void get_cursor_position(uint8& x, uint8& y);
 	void enable_cursor(uint8 cursor_start, uint8 cursor_end);
 	void update_cursor(uint8 x, uint8 y);
+	uint8 get_width();
+	uint8 get_height();
 	
 private:
 	static uint16* vga_addres;
 	static Cell* vga_addres_cells;
 	static const uint16 vga_zise;
-	uint8 width;
+	uint8 x,y,fc,bc;
+	Cell* video_memory;
+	
 };
 
 }

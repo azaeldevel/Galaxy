@@ -7,7 +7,7 @@
 extern "C" void kernel_entry()
 {
 	
-	kernel::VGA vga;
+	kernel::VGA vga(kernel::VGA::Colors::WHITE,kernel::VGA::Colors::BLUE);
 	
   	//bios.print("Loading BIOS funtion..");
   	/*bios.print('A');
@@ -16,11 +16,21 @@ extern "C" void kernel_entry()
   	bios.print('A');
   	*/
   	
-  	vga.disable_cursor();
+  	//vga.disable_cursor();
   	vga.print("Iniciando..");
   	
-  	uint8 vx,vy;
-  	vga.get_cursor_position(vx,vy);
-  	vga.print(vx);
+  	//vga.get_cursor_position(vx,vy);
+  	//vga.print((char)vga.get_width());
   	//cheers();
+  	/*vga.print('I');
+  	vga.print('n');
+  	vga.print('i');
+  	vga.print('c');
+  	vga.print('i');
+  	vga.print('a');
+  	vga.print('n');
+  	vga.print('d');
+  	vga.print('o');
+  	vga.print('.');
+  	vga.print('.');*/
 }

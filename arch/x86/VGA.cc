@@ -9,6 +9,7 @@ namespace kernel
 
 //VGA
 /*
+https://wiki.osdev.org/VGA_Hardware
 16 bit video buffer elements
 8 bits(ah) higher : 
   lower 4 bits - forec olor
@@ -23,12 +24,13 @@ uint16* VGA::vga_addres = (uint16*)0xB8000;//hasta C7FFF
 VGA::Cell* VGA::vga_addres_cells = (VGA::Cell*)0xB8000;
 const uint16 VGA::vga_zise = 2200;
 
-VGA::VGA()
+VGA::VGA() : x(0),y(0),video_memory((VGA::Cell*)0xB8000)
 {
+	
 }
-VGA::VGA(uint8 fc,uint8 bc)
+VGA::VGA(uint8 f,uint8 b) : fc(f), bc(b),video_memory((VGA::Cell*)0xB8000)
 {
-	clear(fc,bc);
+	clear(f,b);
 }
 
 uint16& VGA::word(uint16 i)
@@ -65,19 +67,49 @@ uint16 VGA::convert(unsigned char ch, uint8 fc, uint8 bc)
 
   	return ax;
 }
+void VGA::write(char c)
+{
+	if(x < get_width())
+	{
+		video_memory[y * get_width() + x].letter = c;
+		x++;
+	}
+	else
+	{
+		x = 0;
+		y++;
+		video_memory[y * get_width() + x].letter = c;
+	}
+}
+void VGA::print(char c)
+{
+	write(c);
+	update_cursor(x,y);
+}
 
 void VGA::print(const char* str)
 {
 	uint16 i = 0;
 	while(str[i] != '\0')
 	{
-		vga_addres_cells[i].letter = str[i];
+		print(str[i]);
 		i++;
 	}
+	update_cursor(x,y);
 }
-void VGA::print(uint8 val)
+void VGA::print(unsigned char number)
 {
+	for(unsigned char i = 0; i < sizeof(number) * 8; i++)
+	{
 	
+	}
+}
+void VGA::print(signed char number)
+{
+	for(unsigned char i = 0; i < sizeof(number) * 8; i++)
+	{
+	
+	}
 }
 void VGA::new_line()
 {
@@ -103,9 +135,19 @@ void VGA::get_cursor_position(uint8& x, uint8& y)
     outb(0x3D4, 0x0E);
     y = inb(0x3D5);
 }
+uint8 VGA::get_width()
+{
+	outb(0x3D4, 0x00);
+    return inb(0x3D5);
+}
+uint8 VGA::get_height()
+{
+	outb(0x3D4, 0x06);
+    return inb(0x3D5);
+}
 void VGA::update_cursor(uint8 x, uint8 y)
 {
-	uint16 pos = y * width + x;
+	uint16 pos = y * get_width() + x;
  
 	outb(0x3D4, 0x0F);
 	outb(0x3D5, (uint8) (pos & 0xFF));
