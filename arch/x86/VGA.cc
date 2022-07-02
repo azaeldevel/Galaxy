@@ -23,6 +23,7 @@ https://wiki.osdev.org/VGA_Hardware
 uint16* VGA::vga_addres = (uint16*)0xB8000;//hasta C7FFF
 VGA::Cell* VGA::vga_addres_cells = (VGA::Cell*)0xB8000;
 const uint16 VGA::vga_zise = 2200;
+uint8 VGA::TAB_SIZE = 4;
 
 VGA::VGA() : x(0),y(0),video_memory((VGA::Cell*)0xB8000)
 {
@@ -69,16 +70,28 @@ uint16 VGA::convert(unsigned char ch, uint8 fc, uint8 bc)
 }
 void VGA::write(char c)
 {
-	if(x < get_width())
+	if(c >= 0x20 and c <= 0x7e)
 	{
-		video_memory[y * get_width() + x].letter = c;
-		x++;
+		if(x < get_width())
+		{
+			video_memory[(y * get_width()) + x].letter = c;
+			x++;
+		}
+		else
+		{
+			x = 0;
+			y++;
+			video_memory[(y * get_width()) + x].letter = c;
+		}
 	}
-	else
+	else if (c == '\n')
 	{
 		x = 0;
 		y++;
-		video_memory[y * get_width() + x].letter = c;
+	}
+	else if (c == '\t')
+	{
+		x += TAB_SIZE;
 	}
 }
 void VGA::print(char c)
@@ -99,20 +112,177 @@ void VGA::print(const char* str)
 }
 void VGA::print(unsigned char number)
 {
-	for(unsigned char i = 0; i < sizeof(number) * 8; i++)
+	if(number & 128)
 	{
-	
+		write('1');
 	}
+	else
+	{
+		write('0');
+	}
+	
+	if(number & 64)
+	{
+		write('1');
+	}
+	else
+	{
+		write('0');
+	}
+	
+	if(number & 32)
+	{
+		write('1');
+	}
+	else
+	{
+		write('0');
+	}
+	
+	if(number & 16)
+	{
+		write('1');
+	}
+	else
+	{
+		write('0');
+	}
+	
+	if(number & 8)
+	{
+		write('1');
+	}
+	else
+	{
+		write('0');
+	}
+	
+	if(number & 4)
+	{
+		write('1');
+	}
+	else
+	{
+		write('0');
+	}
+	
+	if(number & 2)
+	{
+		write('1');
+	}
+	else
+	{
+		write('0');
+	}
+	
+	if(number & 1)
+	{
+		write('1');
+	}
+	else
+	{
+		write('0');
+	}
+	
+	update_cursor(x,y);
 }
 void VGA::print(signed char number)
 {
-	for(unsigned char i = 0; i < sizeof(number) * 8; i++)
+	if(number & 128)
 	{
+		write('1');
+	}
+	else
+	{
+		write('0');
+	}
 	
+	if(number & 64)
+	{
+		write('1');
+	}
+	else
+	{
+		write('0');
+	}
+	
+	if(number & 32)
+	{
+		write('1');
+	}
+	else
+	{
+		write('0');
+	}
+	
+	if(number & 16)
+	{
+		write('1');
+	}
+	else
+	{
+		write('0');
+	}
+	
+	if(number & 8)
+	{
+		write('1');
+	}
+	else
+	{
+		write('0');
+	}
+	
+	if(number & 4)
+	{
+		write('1');
+	}
+	else
+	{
+		write('0');
+	}
+	
+	if(number & 2)
+	{
+		write('1');
+	}
+	else
+	{
+		write('0');
+	}
+	
+	if(number & 1)
+	{
+		write('1');
+	}
+	else
+	{
+		write('0');
+	}
+	
+	update_cursor(x,y);
+}
+void VGA::print(signed short n)
+{
+	unsigned char* number = (unsigned char*)&n;
+	for(signed char i = 0; i < sizeof(n); i++)
+	{
+		print(number[i]);
+	}
+}
+void VGA::print(unsigned short n)
+{
+	unsigned char* number = (unsigned char*)&n;
+	for(unsigned char i = 0; i < sizeof(n); i++)
+	{
+		print(number[i]);
 	}
 }
 void VGA::new_line()
 {
+	x = 0;
+	y++;
+	update_cursor(x,y);
 }
 
 void VGA::disable_cursor()

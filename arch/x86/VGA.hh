@@ -44,8 +44,11 @@ public:
 	virtual void write(char);
 	virtual void print(char);
 	virtual void print(const char*);
+	
 	virtual void print(unsigned char);
 	virtual void print(signed char);
+	virtual void print(unsigned short);
+	virtual void print(signed short);
 	virtual void new_line();
 	
 	void clear(uint8 forecolor, uint8 backcolor);	
@@ -58,6 +61,8 @@ public:
 	uint8 get_width();
 	uint8 get_height();
 	
+	
+	static uint8 TAB_SIZE;
 private:
 	static uint16* vga_addres;
 	static Cell* vga_addres_cells;

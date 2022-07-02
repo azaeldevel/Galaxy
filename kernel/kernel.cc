@@ -17,10 +17,13 @@ extern "C" void kernel_entry()
   	*/
   	
   	//vga.disable_cursor();
-  	vga.print("Iniciando..");
+  	vga.print("Iniciando..\n");
+  	/*vga.print("Iniciando..\n");
+  	vga.print("Iniciando..\n");
+  	vga.print("Iniciando..\n");*/
   	
   	//vga.get_cursor_position(vx,vy);
-  	//vga.print((char)vga.get_width());
+  	vga.print((uint8)vga.get_width());
   	//cheers();
   	/*vga.print('I');
   	vga.print('n');
@@ -33,4 +36,12 @@ extern "C" void kernel_entry()
   	vga.print('o');
   	vga.print('.');
   	vga.print('.');*/
+  	vga.new_line();
+  	vga.print((unsigned char)73);
+  	vga.new_line();
+  	vga.print((unsigned char)128);
+  	vga.new_line();
+  	vga.print((unsigned char)129);
+  	vga.new_line();
+  	vga.print((unsigned short)513);
 }
