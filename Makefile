@@ -2,7 +2,7 @@ ifndef BUILD_DIR
 	BUILD_DIR=build
 endif
 ifndef WIDTH
-	WIDTH = 32
+	WIDTH = 16
 endif
 ifndef EMULATOR
 	EMULATOR = qemu
@@ -29,7 +29,7 @@ $(BUILD_DIR)/bootloader-32 : $(BUILD_DIR)/bootloader-32.o
 
 
 $(BUILD_DIR)/bootloader-16.bin : arch/x86/bootloader.cc
-	$(CC) $(LFLAGS) -Oz -std=c++1z -m16 -o $@ $^
+	i386-elf-g++ $(LFLAGS) -O2 -std=c++1z -m16 -o $@ $^
 $(BUILD_DIR)/bootloader-16 : $(BUILD_DIR)/bootloader-16.bin
 	mv $^ $@
 
@@ -38,10 +38,14 @@ show: $(BUILD_DIR)/bootloader-$(WIDTH)
 	@ndisasm -b $(WIDTH) $^
 
 $(BUILD_DIR)/floppy.img : $(BUILD_DIR)/bootloader-$(WIDTH)
-	dd if=/dev/zero of=$(BUILD_DIR)/floppy.img bs=1024 count=1440
-	dd if=$^ of=$(BUILD_DIR)/floppy.img bs=1 count=512 conv=notrunc
+	dd if=/dev/zero of=$(BUILD_DIR)/floppy.img count=1440 bs=1k
+	mkfs.msdos $(BUILD_DIR)/floppy.img
+	mdir -i $(BUILD_DIR)/floppy.img
+	mcopy -i $(BUILD_DIR)/floppy.img $(BUILD_DIR)/bootloader-$(WIDTH) ::/
+	mdir -i $(BUILD_DIR)/floppy.img
+
 booting : $(BUILD_DIR)/floppy.img
-	qemu-system-i386 -fda $^ -boot a
+	qemu-system-i386 -hda $^
 
 
 $(BUILD_DIR)/%.o : kernel/%.cc
