@@ -3,6 +3,8 @@
 #define OCTETOS_OS_KERNEL_VGA_HH
 
 #include "Bios.hh"
+#include "../../meta/tools.hh"
+#include "../../meta/memory.hh"
 #include "../../kernel/Video.hh"
 
 namespace kernel
@@ -41,15 +43,16 @@ public:
 	uint16& word(uint16);
 	Cell& cell(uint16);
 	
-	virtual void write(char);
-	virtual void print(char);
-	virtual void print(const char*);
+	void write(char);
+	void print(char);	
+	void print(const Bits&);
+	void print(const char*);
 	
-	virtual void print(unsigned char);
-	virtual void print(signed char);
-	virtual void print(unsigned short);
-	virtual void print(signed short);
-	virtual void new_line();
+	void print(unsigned char);
+	void print(signed char);
+	void print(unsigned short);
+	void print(signed short);
+	void new_line();
 	
 	void clear(uint8 forecolor, uint8 backcolor);	
 	static uint16 convert(unsigned char ch, uint8 forecolor, uint8 backcolor);
@@ -69,7 +72,7 @@ private:
 	static const uint16 vga_zise;
 	uint8 x,y,fc,bc;
 	Cell* video_memory;
-	
+	Memory memory;
 };
 
 }

@@ -1,4 +1,5 @@
 #include "kernel.hh"
+#include "../meta/memory.hh"
 #include "../arch/x86/VGA.hh"
 #include "../arch/x86/Bios.hh"
 
@@ -23,7 +24,7 @@ extern "C" void kernel_entry()
   	vga.print("Iniciando..\n");*/
   	
   	//vga.get_cursor_position(vx,vy);
-  	vga.print((uint8)vga.get_width());
+  	vga.print((kernel::uint8)vga.get_width());
   	//cheers();
   	/*vga.print('I');
   	vga.print('n');
@@ -46,4 +47,6 @@ extern "C" void kernel_entry()
   	vga.print((unsigned char)129);
   	vga.new_line();
   	vga.print((unsigned short)513);
+  	
+  	kernel::Memory memory((void*)0x09FFF0000, (void*) 0x09FFF0000 + 0x0F0000000,3);
 }

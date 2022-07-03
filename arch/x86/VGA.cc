@@ -26,11 +26,11 @@ VGA::Cell* VGA::vga_addres_cells = (VGA::Cell*)0xB8000;
 const uint16 VGA::vga_zise = 2200;
 uint8 VGA::TAB_SIZE = 4;
 
-VGA::VGA() : x(0),y(0),video_memory((VGA::Cell*)0xB8000)
+VGA::VGA() : x(0),y(0),video_memory((VGA::Cell*)0xB8000),memory((void*)0xB8000,(void*)0xB8000 + (get_width() * get_height()),1)
 {
 	
 }
-VGA::VGA(uint8 f,uint8 b) : fc(f), bc(b),video_memory((VGA::Cell*)0xB8000)
+VGA::VGA(uint8 f,uint8 b) : fc(f), bc(b),video_memory((VGA::Cell*)0xB8000),memory((void*)0xB8000,(void*)0xB8000 + (get_width() * get_height()),1)
 {
 	clear(f,b);
 }
@@ -76,6 +76,7 @@ void VGA::write(char c)
 		if(x < get_width())
 		{
 			video_memory[(y * get_width()) + x].letter = c;
+			//memory[0][].letter = c;
 			x++;
 		}
 		else
@@ -112,171 +113,105 @@ void VGA::print(const char* str)
 	update_cursor(x,y);
 }
 
+void VGA::print(const Bits& bits)
+{
+	if(bits.b7)
+	{
+		write('1');
+	}
+	else
+	{
+		write('0');
+	}
+	
+	if(bits.b6)
+	{
+		write('1');
+	}
+	else
+	{
+		write('0');
+	}
+	
+	if(bits.b5)
+	{
+		write('1');
+	}
+	else
+	{
+		write('0');
+	}
+	
+	if(bits.b4)
+	{
+		write('1');
+	}
+	else
+	{
+		write('0');
+	}
+	
+	if(bits.b3)
+	{
+		write('1');
+	}
+	else
+	{
+		write('0');
+	}
+	
+	if(bits.b2)
+	{
+		write('1');
+	}
+	else
+	{
+		write('0');
+	}
+	
+	if(bits.b1)
+	{
+		write('1');
+	}
+	else
+	{
+		write('0');
+	}
+	
+	if(bits.b0)
+	{
+		write('1');
+	}
+	else
+	{
+		write('0');
+	}
+}
 void VGA::print(unsigned char number)
 {
 	const Bits* bits = reinterpret_cast<const Bits*>(&number);
-	if(bits->b7)
-	{
-		write('1');
-	}
-	else
-	{
-		write('0');
-	}
-	
-	if(bits->b6)
-	{
-		write('1');
-	}
-	else
-	{
-		write('0');
-	}
-	
-	if(bits->b5)
-	{
-		write('1');
-	}
-	else
-	{
-		write('0');
-	}
-	
-	if(bits->b4)
-	{
-		write('1');
-	}
-	else
-	{
-		write('0');
-	}
-	
-	if(bits->b3)
-	{
-		write('1');
-	}
-	else
-	{
-		write('0');
-	}
-	
-	if(bits->b2)
-	{
-		write('1');
-	}
-	else
-	{
-		write('0');
-	}
-	
-	if(bits->b1)
-	{
-		write('1');
-	}
-	else
-	{
-		write('0');
-	}
-	
-	if(bits->b0)
-	{
-		write('1');
-	}
-	else
-	{
-		write('0');
-	}
-	
+	print(*bits);	
 	update_cursor(x,y);
 }
 void VGA::print(signed char number)
-{	
+{
 	const Bits* bits = reinterpret_cast<const Bits*>(&number);
-	if(bits->b7)
-	{
-		write('1');
-	}
-	else
-	{
-		write('0');
-	}
-	
-	if(bits->b6)
-	{
-		write('1');
-	}
-	else
-	{
-		write('0');
-	}
-	
-	if(bits->b5)
-	{
-		write('1');
-	}
-	else
-	{
-		write('0');
-	}
-	
-	if(bits->b4)
-	{
-		write('1');
-	}
-	else
-	{
-		write('0');
-	}
-	
-	if(bits->b3)
-	{
-		write('1');
-	}
-	else
-	{
-		write('0');
-	}
-	
-	if(bits->b2)
-	{
-		write('1');
-	}
-	else
-	{
-		write('0');
-	}
-	
-	if(bits->b1)
-	{
-		write('1');
-	}
-	else
-	{
-		write('0');
-	}
-	
-	if(bits->b0)
-	{
-		write('1');
-	}
-	else
-	{
-		write('0');
-	}
-	
+	print(*bits);	
 	update_cursor(x,y);
 }
 void VGA::print(signed short n)
 {
-	unsigned char* number = (unsigned char*)&n;
-	print(number[1]);
-	print(number[0]);
+	BitsData bits(n);
+	print(bits[1]);
+	print(bits[0]);
+	update_cursor(x,y);
 }
 void VGA::print(unsigned short n)
 {
-	unsigned char* number = (unsigned char*)&n;
-	print(number[1]);
-	print(number[0]);
+	BitsData bits(n);
+	print(bits[1]);
+	print(bits[0]);
+	update_cursor(x,y);
 }
 void VGA::new_line()
 {
