@@ -25,10 +25,10 @@ $(BUILD_DIR)/bootloader-s : arch/x86/bootloader.s
 	as $< -o $(BUILD_DIR)/bootloader.o
 	ld -o $@ --oformat binary -Ttext 0x7c00 $(BUILD_DIR)/bootloader.o
 
-$(BUILD_DIR)/bootloader-cc : arch/x86/bootloader.cc
-	i386-elf-g++ -O2 -S $(LFLAGS) -std=c++1z -o $@.s $<
+$(BUILD_DIR)/bootloader-cc : $(BUILD_DIR)/cheers.o arch/x86/bootloader.cc
+	i386-elf-g++ -m16 -O2 -S $(LFLAGS) -std=c++1z -o $@.s arch/x86/bootloader.cc
 	as $@.s -o $(BUILD_DIR)/bootloader.o
-	ld -o $@ --oformat binary -e bootloader -Ttext 0x7c00 $(BUILD_DIR)/bootloader.o
+	ld -o $@ --oformat binary -e bootloader -Ttext 0x7c00 $(BUILD_DIR)/bootloader.o $(BUILD_DIR)/cheers.o
 	
 show: $(BUILD_DIR)/bootloader-$(BOOTLOADER)
 	@cat $^|hexdump -C
@@ -59,7 +59,7 @@ $(BUILD_DIR)/boot.o : arch/x86/boot.s
 	as --32 $^ -o $@
 
 $(BUILD_DIR)/cheers.o : arch/x86/cheers.s
-	as --32 $^ -o $@
+	as $^ -o $@
 	
 $(BUILD_DIR)/kernel : linker.ld $(BUILD_DIR)/meta/memory.o $(BUILD_DIR)/cheers.o $(BUILD_DIR)/boot.o  $(BUILD_DIR)/Bios.o $(BUILD_DIR)/VGA.o $(BUILD_DIR)/kernel.o
 	ld -m elf_i386 -T $^ -o $@ -nostdlib

@@ -1,12 +1,12 @@
 
+//extern "C" void bios_interrup(unsigned char service,unsigned char function, unsigned char parameter);
+extern "C" void cheers();
 
-/*void print(char c)
+
+/*extern "C" void print(char c)
 {
-	asm volatile ("movb $0x0e, %%ah;" : : : "%ah");
-	asm volatile ("movb %[c], %%al;" : : [c] "r" (c) : "%al");
-	asm volatile ("int $0x10;" );
+	bios_interrup((unsigned char)0x10,(unsigned char)0x0E,c);
 }*/
-
 
 
 extern "C" void bootloader(void)
@@ -22,7 +22,19 @@ extern "C" void bootloader(void)
 	print('o');
 	print('.');
 	print('.');*/
-	char* textBuffer = reinterpret_cast<char*>(0xB8000);
-	textBuffer[0] = 'I';
-	textBuffer[1] = (char)0x01;
+	cheers();
+	
+	/*asm volatile ("movb $0x0E, %%ah;" : : : "%ah");
+	asm volatile ("movb $'I', %%al;" : : : "%al");
+	asm volatile ("int $0x10;" );
+	
+	
+	asm volatile ("movb $0x0E, %%ah;" : : : "%ah");
+	asm volatile ("movb $'n', %%al;" : : : "%al");
+	asm volatile ("int $0x10;" );
+	
+	
+	asm volatile ("movb $0x0E, %%ah;" : : : "%ah");
+	asm volatile ("movb $'i', %%al;" : : : "%al");
+	asm volatile ("int $0x10;" );*/
 }
