@@ -9,7 +9,10 @@ ifndef DISK_TYPE
 endif
 BOOTLOADER = cc
 
-CC = gcc
+CC = i386-elf-gcc
+AS = i386-elf-as
+LD = i386-elf-ld
+
 CFLAGS = -O2 -w -trigraphs -fno-builtin  -fno-exceptions -fno-stack-protector -fno-rtti -nostdlib -nodefaultlibs -fomit-frame-pointer
 CCFLAGS = $(CFLAGS) -std=c++20
 
@@ -22,13 +25,13 @@ LFLAGS=-Wl,--oformat=binary -nostdlib -fomit-frame-pointer -fno-builtin -nostart
 
 
 $(BUILD_DIR)/bootloader-s : arch/x86/bootloader.s
-	as $< -o $(BUILD_DIR)/bootloader.o
-	ld -o $@ --oformat binary -Ttext 0x7c00 $(BUILD_DIR)/bootloader.o
+	$(AS) $< -o $(BUILD_DIR)/bootloader.o
+	$(LD) -o $@ --oformat binary -Ttext 0x7c00 $(BUILD_DIR)/bootloader.o
 
-$(BUILD_DIR)/bootloader-cc : $(BUILD_DIR)/cheers.o arch/x86/bootloader.cc
-	i386-elf-g++ -m16 -O2 -S $(LFLAGS) -std=c++1z -o $@.s arch/x86/bootloader.cc
-	as $@.s -o $(BUILD_DIR)/bootloader.o
-	ld -o $@ --oformat binary -e bootloader -Ttext 0x7c00 $(BUILD_DIR)/bootloader.o $(BUILD_DIR)/cheers.o
+$(BUILD_DIR)/bootloader-cc : arch/x86/bootloader.cc
+	$(CC) -m16 -O2 -S $(LFLAGS) -o $@.s arch/x86/bootloader.cc
+	$(AS) $@.s -o $(BUILD_DIR)/bootloader.o
+	$(LD) -o $@ --oformat binary -e bootloader -Ttext 0x7c00 $(BUILD_DIR)/bootloader.o
 	
 show: $(BUILD_DIR)/bootloader-$(BOOTLOADER)
 	@cat $^|hexdump -C
@@ -56,13 +59,14 @@ $(BUILD_DIR)/meta/%.o : meta/%.cc
 	$(CC) -c $^ -o $@ $(CCFLAGS_32)
 
 $(BUILD_DIR)/boot.o : arch/x86/boot.s
-	as --32 $^ -o $@
+	$(AS) --32 $^ -o $@
 
-$(BUILD_DIR)/cheers.o : arch/x86/cheers.s
-	as $^ -o $@
+$(BUILD_DIR)/%.o : arch/x86/%.s
+	mkdir -p $(BUILD_DIR)/Bios
+	$(AS) $^ -o $@
 	
 $(BUILD_DIR)/kernel : linker.ld $(BUILD_DIR)/meta/memory.o $(BUILD_DIR)/cheers.o $(BUILD_DIR)/boot.o  $(BUILD_DIR)/Bios.o $(BUILD_DIR)/VGA.o $(BUILD_DIR)/kernel.o
-	ld -m elf_i386 -T $^ -o $@ -nostdlib
+	$(LD) -m elf_i386 -T $^ -o $@ -nostdlib
 	grub-file --is-x86-multiboot $@
 
 

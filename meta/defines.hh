@@ -12,6 +12,7 @@ typedef unsigned char uint8;
 typedef unsigned short uint16;
 typedef unsigned int uint32;
 typedef char CHAR;
+typedef unsigned char byte;
 
 typedef unsigned int Index;
 typedef unsigned int Word;
