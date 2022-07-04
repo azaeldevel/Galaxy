@@ -1,44 +1,21 @@
 #include "../../meta/defines.hh"
+#include "Bios.hh"
 
-extern "C" inline void bios_interrup(kernel::byte service,kernel::byte function,kernel::byte parameter)
+extern "C" void bootloader()
 {
-	asm volatile ("movb %[function], %%ah;"
-				: 
-				: [function] "g" (function) 
-				:"%ah");
-	asm volatile ("movb %[parameter], %%al;"
-				: 
-				: [parameter] "g" (parameter) 
-				:"%al");
-	asm volatile ("int %[service];"
-				: 
-				: [service] "g" (service) 
-				:"%ah","%al");
-}
-
-extern "C" void cheers();
-
-
-extern "C" inline void print(char c)
-{
-	bios_interrup(0x10,0x0E,c);
-}
-
-
-extern "C" void bootloader(void)
-{
-	print('I');
-	print('n');
-	print('i');
-	print('c');
-	print('i');
-	print('a');
-	print('n');
-	print('d');
-	print('o');
-	print('.');
-	print('.');
-	print('.');
+	kernel::Bios bios;
+	bios.print('I');
+	bios.print('n');
+	bios.print('i');
+	/*bios.print('c');
+	bios.print('i');
+	bios.print('a');
+	bios.print('n');
+	bios.print('d');
+	bios.print('o');
+	bios.print('.');
+	bios.print('.');
+	bios.print('.');*/
 	//cheers();
 	
 	/*asm volatile ("movb $0x0E, %%ah;" : : : "%ah");

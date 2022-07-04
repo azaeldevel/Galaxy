@@ -31,28 +31,26 @@ void Bios::outb(uint16 port, uint8 val)
 }
 uint8 Bios::inb(uint16 port)
 {
-    uint8 ret;
+    uint8 ret;	
     asm volatile ( "inb %1, %0"
                    : "=a"(ret)
                    : "Nd"(port) );
     return ret;
 }
-void Bios::interrup(unsigned char service, unsigned char function, unsigned char parameter)
+void Bios::interrup(kernel::byte service,kernel::byte function,kernel::byte parameter)
 {
-	asm volatile ("mov %%ah, %[function];" : : [function] "r" (function) : "%ah");
-	asm volatile ("mov %%al, %[parameter];" : : [parameter] "r" (parameter) : "%al");
-	//asm volatile ("mov %[service], %%bh;" : : [service] "r" (service) : "%bh");
-	//asm volatile ("int %[service];" :  : [service] "r"(service) : );
-	asm volatile ("int $0x10;" );
-	/*asm volatile (
-	"mov %[function],%%ah;"
-	"mov %[parameter],%%al;"
-	"int $10;" 
-	: 
-	: [function] "r" (function), [parameter] "r" (parameter)
-	: 
-	"%ah","%al"
-	);*/
+	asm volatile ("movb %[function], %%ah;"
+				: 
+				: [function] "g" (function) 
+				:"%ah");
+	asm volatile ("movb %[parameter], %%al;"
+				: 
+				: [parameter] "g" (parameter) 
+				:"%al");
+	asm volatile ("int %[service];"
+				: 
+				: [service] "g" (service) 
+				:"%ah","%al");
 }
 void Bios::print(char c)
 {

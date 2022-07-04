@@ -13,26 +13,24 @@ CC = i386-elf-gcc
 AS = i386-elf-as
 LD = i386-elf-ld
 
-CFLAGS = -O2 -w -trigraphs -fno-builtin  -fno-exceptions -fno-stack-protector -fno-rtti -nostdlib -nodefaultlibs -fomit-frame-pointer
-CCFLAGS = $(CFLAGS) -std=c++20
-
-CFLAGS_32 = -m32 $(CFLAGS)
-CCFLAGS_32 = $(CFLAGS_32) -std=c++20
-
-
 ENTRY_POINT=-Wl,-e,0x7c00 -Wl,-Tbss,0x7c00 -Wl,-Tdata,0x7c00 -Wl,-Ttext,0x7c00
 LFLAGS=-Wl,--oformat=binary -nostdlib -fomit-frame-pointer -fno-builtin -nostartfiles -nodefaultlibs $(ENTRY_POINT)
 
+.PRECIOUS: $(BUILD_DIR)/x86-16/%.s
 
-$(BUILD_DIR)/bootloader-s : arch/x86/bootloader.s
-	$(AS) $< -o $(BUILD_DIR)/bootloader.o
-	$(LD) -o $@ --oformat binary -Ttext 0x7c00 $(BUILD_DIR)/bootloader.o
-
-$(BUILD_DIR)/bootloader-cc : arch/x86/bootloader.cc
-	$(CC) -m16 -O2 -S $(LFLAGS) -o $@.s arch/x86/bootloader.cc
-	$(AS) $@.s -o $(BUILD_DIR)/bootloader.o
-	$(LD) -o $@ --oformat binary -e bootloader -Ttext 0x7c00 $(BUILD_DIR)/bootloader.o
 	
+$(BUILD_DIR)/meta/%.o : meta/%.cc
+	$(CC) -c $^ -o $@ $(CCFLAGS_32)
+
+$(BUILD_DIR)/x86-16/%.s : arch/x86/%.cc
+	$(CC) -m16 -O2 -S $(LFLAGS) -o $@ $<
+
+$(BUILD_DIR)/x86-16/%.o : $(BUILD_DIR)/x86-16/%.s
+	$(AS) $< -o $@
+
+$(BUILD_DIR)/bootloader-cc : $(BUILD_DIR)/x86-16/bootloader.o  $(BUILD_DIR)/x86-16/Bios.o
+	$(LD) -o $@ --oformat binary -e bootloader -Ttext 0x7c00 $^
+
 show: $(BUILD_DIR)/bootloader-$(BOOTLOADER)
 	@cat $^|hexdump -C
 	@ndisasm -b $(WIDTH) $^
@@ -47,44 +45,12 @@ $(BUILD_DIR)/floppy.img : $(BUILD_DIR)/bootloader-$(BOOTLOADER)
 booting : $(BUILD_DIR)/floppy.img
 	qemu-system-i386 -fda $^ -boot a
 
-
-$(BUILD_DIR)/%.o : kernel/%.cc
-	$(CC) -c $^ -o $@ $(CCFLAGS_32)
-	
-$(BUILD_DIR)/%.o : arch/x86/%.cc
-	$(CC) -c $^ -o $@ $(CCFLAGS_32)
-	
-$(BUILD_DIR)/meta/%.o : meta/%.cc
-	mkdir -p $(BUILD_DIR)/meta
-	$(CC) -c $^ -o $@ $(CCFLAGS_32)
-
-$(BUILD_DIR)/boot.o : arch/x86/boot.s
-	$(AS) --32 $^ -o $@
-
-$(BUILD_DIR)/%.o : arch/x86/%.s
-	mkdir -p $(BUILD_DIR)/Bios
-	$(AS) $^ -o $@
-	
-$(BUILD_DIR)/kernel : linker.ld $(BUILD_DIR)/meta/memory.o $(BUILD_DIR)/cheers.o $(BUILD_DIR)/boot.o  $(BUILD_DIR)/Bios.o $(BUILD_DIR)/VGA.o $(BUILD_DIR)/kernel.o
-	$(LD) -m elf_i386 -T $^ -o $@ -nostdlib
-	grub-file --is-x86-multiboot $@
-
-
-
-
-$(BUILD_DIR)/Meta-SO.iso : $(BUILD_DIR)/kernel
-	mkdir -p $(BUILD_DIR)/isodir/boot/grub
-	cp $(BUILD_DIR)/kernel $(BUILD_DIR)/isodir/boot/
-	cp grub.cfg $(BUILD_DIR)/isodir/boot/grub/grub.cfg
-	grub-mkrescue -o $(BUILD_DIR)/Meta-SO.iso $(BUILD_DIR)/isodir
-
-	
-run : $(BUILD_DIR)/Meta-SO.iso
-	qemu-system-i386 -cdrom $(BUILD_DIR)/Meta-SO.iso
 	
 build : $(BUILD_DIR)/kernel
 
 .PHONY:  clean
 
 clean :
-	rm -r $(BUILD_DIR)/*
+	rm -rf $(BUILD_DIR)/x86-16/*
+	rm -rf $(BUILD_DIR)/meta/*
+	
