@@ -7,7 +7,7 @@ endif
 ifndef DISK_TYPE
 	DISK_TYPE = floppy
 endif
-BOOTLOADER = s
+BOOTLOADER = cc
 
 CC = gcc
 CFLAGS = -O2 -w -trigraphs -fno-builtin  -fno-exceptions -fno-stack-protector -fno-rtti -nostdlib -nodefaultlibs -fomit-frame-pointer
@@ -23,20 +23,23 @@ LFLAGS=-Wl,--oformat=binary -nostdlib -fomit-frame-pointer -fno-builtin -nostart
 
 $(BUILD_DIR)/bootloader-s : arch/x86/bootloader.s
 	as $< -o $(BUILD_DIR)/bootloader.o
-	ld -o $@ --oformat binary -e init -Ttext 0x7c00 $(BUILD_DIR)/bootloader.o
+	ld -o $@ --oformat binary -Ttext 0x7c00 $(BUILD_DIR)/bootloader.o
 
 $(BUILD_DIR)/bootloader-cc : arch/x86/bootloader.cc
-	i386-elf-g++ $(LFLAGS) -std=c++1z -m16 -o $@ $<
-
+	i386-elf-g++ -O2 -S $(LFLAGS) -std=c++1z -o $@.s $<
+	as $@.s -o $(BUILD_DIR)/bootloader.o
+	ld -o $@ --oformat binary -e bootloader -Ttext 0x7c00 $(BUILD_DIR)/bootloader.o
+	
 show: $(BUILD_DIR)/bootloader-$(BOOTLOADER)
 	@cat $^|hexdump -C
 	@ndisasm -b $(WIDTH) $^
 
 $(BUILD_DIR)/floppy.img : $(BUILD_DIR)/bootloader-$(BOOTLOADER)
 	dd if=/dev/zero of=$(BUILD_DIR)/floppy.img count=1440 bs=1k
-	# mkfs.msdos $(BUILD_DIR)/floppy.img
-	# mcopy -i $(BUILD_DIR)/bootloader-$(BOOTLOADER) $(BUILD_DIR)/floppy.img
-	dd if=$< of=$@ bs=512 count=1
+	parted -s $@ mktable msdos
+	parted -s $@ mkpart primary fat32 1 "100%"
+	parted -s $@ set 1 boot on
+	dd if=$(BUILD_DIR)/bootloader-$(BOOTLOADER) bs=510 count=1 of=$@ conv=notrunc
 
 booting : $(BUILD_DIR)/floppy.img
 	qemu-system-i386 -fda $^ -boot a

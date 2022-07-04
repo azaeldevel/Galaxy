@@ -9,7 +9,7 @@
 
 
 
-void bootloader(void)
+extern "C" void bootloader(void)
 {
 	/*print('I');
 	print('n');
@@ -23,5 +23,6 @@ void bootloader(void)
 	print('.');
 	print('.');*/
 	char* textBuffer = reinterpret_cast<char*>(0xB8000);
-	textBuffer[0] = '+';
+	textBuffer[0] = 'I';
+	textBuffer[1] = (char)0x01;
 }
