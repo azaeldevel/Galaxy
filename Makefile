@@ -75,7 +75,7 @@ $(BUILD_DIR)/x86-32/boot.o : arch/x86/boot.s
 	
 	
 $(BUILD_DIR)/x86-32/kernel : linker.ld $(BUILD_DIR)/x86-32/memory.o $(BUILD_DIR)/x86-32/boot.o $(BUILD_DIR)/x86-32/VGA.o $(BUILD_DIR)/x86-32/kernel.o  $(BUILD_DIR)/x86-32/Bios.o
-	cd $(BUILD_DIR)/x86-32/ & $(LD) -m elf_i386 -T $^ -o $@ -nostdlib
+	$(LD) -m elf_i386 -T $^ -o $@ -nostdlib
 	grub-file --is-x86-multiboot $@
 	
 $(BUILD_DIR)/Meta-SO.iso : $(BUILD_DIR)/x86-32/kernel
