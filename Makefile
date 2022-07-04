@@ -13,8 +13,7 @@ CC = i386-elf-gcc
 AS = i386-elf-as
 LD = i386-elf-ld
 
-
-CFLAGS = -O2 -w -trigraphs -fno-builtin  -fno-exceptions -fno-stack-protector -fno-rtti -nostdlib -nodefaultlibs -fomit-frame-pointer
+CFLAGS = -O2 -w -nostdlib -fomit-frame-pointer -fno-builtin -fno-stack-protector  -trigraphs  -fno-exceptions -fno-rtti -nodefaultlibs
 CCFLAGS = $(CFLAGS) -std=c++20
 CFLAGS_32 = -m32 $(CFLAGS)
 CCFLAGS_32 = $(CFLAGS_32) -std=c++20
@@ -35,18 +34,18 @@ $(BUILD_DIR)/x86-16/%.s : arch/x86/%.cc
 $(BUILD_DIR)/x86-16/%.o : $(BUILD_DIR)/x86-16/%.s
 	$(AS) $< -o $@
 
-$(BUILD_DIR)/x86-16/bootloader-cc : $(BUILD_DIR)/x86-16/bootloader.o  $(BUILD_DIR)/x86-16/Bios.o
-	$(LD) -o $@ --oformat binary -e bootloader -Ttext 0x7c00 $^
+$(BUILD_DIR)/x86-16/boot-cc : $(BUILD_DIR)/x86-16/boot.o  $(BUILD_DIR)/x86-16/Bios.o
+	$(LD) -o $@ --oformat binary -e booting -Ttext 0x7c00 $^
 
-$(BUILD_DIR)/x86-16/bootloader-s : arch/x86/bootloader.s
-	$(AS) $< -o $(BUILD_DIR)/x86-16/bootloader.o
-	$(LD) -o $@ --oformat binary -Ttext 0x7c00 $(BUILD_DIR)/x86-16/bootloader.o
+$(BUILD_DIR)/x86-16/boot-s : arch/x86/boot.s
+	$(AS) $< -o $(BUILD_DIR)/x86-16/boot.o
+	$(LD) -o $@ --oformat binary -Ttext 0x7c00 $(BUILD_DIR)/x86-16/boot.o
 
-show: $(BUILD_DIR)/bootloader-$(BOOTLOADER)
+show: $(BUILD_DIR)/x86-16/boot-$(BOOTLOADER)
 	@cat $^|hexdump -C
-	@ndisasm -b $(WIDTH) $^
+	@ndisasm -b 16 $^
 
-$(BUILD_DIR)/floppy.img : $(BUILD_DIR)/x86-16/bootloader-$(BOOTLOADER)
+$(BUILD_DIR)/floppy.img : $(BUILD_DIR)/x86-16/boot-$(BOOTLOADER)
 	dd if=/dev/zero of=$(BUILD_DIR)/floppy.img count=1440 bs=1k
 	parted -s $@ mktable msdos
 	parted -s $@ mkpart primary fat32 1 "100%"
@@ -70,11 +69,10 @@ $(BUILD_DIR)/x86-32/%.o : arch/x86/%.cc
 $(BUILD_DIR)/x86-32/%.o : meta/%.cc
 	$(CC) -c $^ -o $@ $(CCFLAGS_32)
 
-$(BUILD_DIR)/x86-32/boot.o : arch/x86/boot.s
+$(BUILD_DIR)/x86-32/kernel.o : arch/x86/kernel.s
 	$(AS) --32 $^ -o $@
 	
-	
-$(BUILD_DIR)/x86-32/kernel : linker.ld $(BUILD_DIR)/x86-32/memory.o $(BUILD_DIR)/x86-32/boot.o $(BUILD_DIR)/x86-32/VGA.o $(BUILD_DIR)/x86-32/kernel.o  $(BUILD_DIR)/x86-32/Bios.o
+$(BUILD_DIR)/x86-32/kernel : linker.ld $(BUILD_DIR)/x86-32/memory.o $(BUILD_DIR)/x86-32/kernel.o $(BUILD_DIR)/x86-32/VGA.o $(BUILD_DIR)/x86-32/kernel.o  $(BUILD_DIR)/x86-32/Bios.o
 	$(LD) -m elf_i386 -T $^ -o $@ -nostdlib
 	grub-file --is-x86-multiboot $@
 	

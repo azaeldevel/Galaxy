@@ -1,55 +1,60 @@
-# set magic number to 0x1BADB002 to identified by bootloader 
-.set MAGIC,    0x1BADB002
+.code16 #generate 16-bit code
+.text #executable code location
+.globl _start;
 
-# set flags to 0
-.set FLAGS,    0
+_start: #code entry point
 
-# set the checksum
-.set CHECKSUM, -(MAGIC + FLAGS)
+#print letter 'H' onto the screen
+movb $'B' , %al
+movb $0x0e, %ah
+int  $0x10
 
-# set multiboot enabled
-.section .multiboot
+#print letter 'e' onto the screen
+movb $'o' , %al
+movb $0x0e, %ah
+int  $0x10
 
-# define type to long for each data defined as above
-.long MAGIC
-.long FLAGS
-.long CHECKSUM
+#print letter 'e' onto the screen
+movb $'o' , %al
+movb $0x0e, %ah
+int  $0x10
+
+#print letter 'l' onto the screen
+movb $'t' , %al
+movb $0x0e, %ah
+int  $0x10
+
+#print letter 'l' onto the screen
+movb $'i' , %al
+movb $0x0e, %ah
+int  $0x10
+
+#print letter 'o' onto the screen
+movb $'n' , %al
+movb $0x0e, %ah
+int  $0x10
+
+#print letter ',' onto the screen
+movb $'g' , %al
+movb $0x0e, %ah
+int  $0x10
+
+#print space onto the screen
+movb $'.' , %al
+movb $0x0e, %ah
+int  $0x10
+
+#print space onto the screen
+movb $'.' , %al
+movb $0x0e, %ah
+int  $0x10
+
+#print space onto the screen
+movb $'.' , %al
+movb $0x0e, %ah
+int  $0x10
 
 
-# set the stack bottom 
-stackBottom:
-
-# define the maximum size of stack to 512 bytes
-.skip 1024
-
-
-# set the stack top which grows from higher to lower
-stackTop:
-
-.section .text
-.global _start
-.type _start, @function
-
-
-_start:
-
-  # assign current stack pointer location to stackTop
-	mov $stackTop, %esp
-
-  # call the kernel main source
-	call kernel_entry
-
-	cli
-
-
-# put system in infinite loop
-hltLoop:
-
-	hlt
-	jmp hltLoop
-
-.size _start, . - _start
-
-
-
-
+. = _start + 510 #mov to 510th byte from 0 pos
+.byte 0x55 #append boot signature
+.byte 0xaa #append boot signature
