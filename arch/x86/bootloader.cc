@@ -19,7 +19,7 @@ extern "C" inline void bios_interrup(kernel::byte service,kernel::byte function,
 extern "C" void cheers();
 
 
-extern "C" void print(char c)
+extern "C" inline void print(char c)
 {
 	bios_interrup(0x10,0x0E,c);
 }
