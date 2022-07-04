@@ -7,7 +7,7 @@ extern "C" void bootloader()
 	bios.print('I');
 	bios.print('n');
 	bios.print('i');
-	/*bios.print('c');
+	bios.print('c');
 	bios.print('i');
 	bios.print('a');
 	bios.print('n');
@@ -15,7 +15,7 @@ extern "C" void bootloader()
 	bios.print('o');
 	bios.print('.');
 	bios.print('.');
-	bios.print('.');*/
+	bios.print('.');
 	//cheers();
 	
 	/*asm volatile ("movb $0x0E, %%ah;" : : : "%ah");
