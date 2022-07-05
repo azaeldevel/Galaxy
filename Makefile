@@ -49,7 +49,7 @@ $(BUILD_DIR)/x86-16/boot-cc : $(BUILD_DIR)/x86-16/boot-boot.o  $(BUILD_DIR)/x86-
 	$(LD) -o $@ --oformat binary -e booting -Ttext $(BOOT_SECTION) $^
 	
 $(BUILD_DIR)/x86-16/loader : $(BUILD_DIR)/x86-16/loader-loader.o  $(BUILD_DIR)/x86-16/Bios-loader.o
-	$(LD) -o $@ --oformat binary -e booting -Ttext $(LOADER_SECTION) $^
+	$(LD) -o $@ --oformat binary -e loading -Ttext $(LOADER_SECTION) $^
 
 $(BUILD_DIR)/x86-16/boot-s : arch/x86/boot.s
 	$(AS) $< -o $(BUILD_DIR)/x86-16/boot.o
@@ -60,22 +60,16 @@ show: $(BUILD_DIR)/x86-16/boot-$(BOOT_TYPE)
 	@ndisasm -b 16 $^
 
 $(BUILD_DIR)/floppy.img : $(BUILD_DIR)/x86-16/boot-$(BOOT_TYPE) $(BUILD_DIR)/x86-16/loader
-	#dd if=/dev/zero of=$(BUILD_DIR)/floppy.img count=1440 bs=1k
-	qemu-img create -f raw $(BUILD_DIR)/floppy.img 1440k
-	mkfs.msdos -s 1 $(BUILD_DIR)/floppy.img
+	dd if=/dev/zero of=$(BUILD_DIR)/floppy.img bs=512 count=2880
+	sudo sudo mkfs -t ext2 $(BUILD_DIR)/floppy.img
+	echo -e "n\np\n1\n1\n2879\na\nw" | fdisk $(BUILD_DIR)/floppy.img
 	sudo losetup $(LOOP_FDA) $(BUILD_DIR)/floppy.img
-	#sudo mkfs -t ext2 $(LOOP_FDA)
-	#sudo parted $(LOOP_FDA) mktable msdos
-	#sudo parted $(LOOP_FDA) mkpart primary ext2 1 720k
-	#sudo parted $(LOOP_FDA) set 1 boot on
-	sudo mount $(LOOP_FDA) /mnt/floppy/
+	dd if=$< bs=510 count=1 of=$@ conv=notrunc
+	sudo mount -t ext2 $(LOOP_FDA) /mnt/floppy
 	sudo mkdir /mnt/floppy/boot
 	sudo cp $(BUILD_DIR)/x86-16/loader /mnt/floppy/boot/ 
 	sudo umount $(LOOP_FDA)
 	sudo losetup -d $(LOOP_FDA)
-	dd if=$< bs=510 count=1 of=$@ conv=notrunc
-	
-	
 
 booting : $(BUILD_DIR)/floppy.img
 	qemu-system-i386 -fda $^ -boot a
