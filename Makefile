@@ -59,19 +59,27 @@ show: $(BUILD_DIR)/x86-16/boot-$(BOOT_TYPE)
 	@cat $^|hexdump -C
 	@ndisasm -b 16 $^
 
-$(BUILD_DIR)/floppy.img : $(BUILD_DIR)/x86-16/boot-$(BOOT_TYPE) $(BUILD_DIR)/x86-16/loader
-	dd if=/dev/zero of=$(BUILD_DIR)/floppy.img bs=512 count=2880
-	sudo sudo mkfs -t ext2 $(BUILD_DIR)/floppy.img
-	echo -e "n\np\n1\n1\n2879\na\nw" | fdisk $(BUILD_DIR)/floppy.img
-	sudo losetup $(LOOP_FDA) $(BUILD_DIR)/floppy.img
+$(BUILD_DIR)/bootloader.img : $(BUILD_DIR)/x86-16/boot-$(BOOT_TYPE) $(BUILD_DIR)/x86-16/loader
+	dd if=/dev/zero of=$@ bs=512 count=2880
+	printf '\x55' | dd bs=1 count=1 of=$@ conv=notrunc seek=510 count=1
+	printf '\xAA' | dd bs=1 count=1 of=$@ conv=notrunc seek=511 count=1
+	dd if=$< bs=510 count=1 of=$@ conv=notrunc
+	dd if=$(BUILD_DIR)/x86-16/loader of=$@ conv=notrunc seek=512
+	
+
+$(BUILD_DIR)/kernel.img : $(BUILD_DIR)/x86-16/boot-$(BOOT_TYPE) $(BUILD_DIR)/x86-16/loader
+	dd if=/dev/zero of=$@ bs=512 count=2880
+	sudo sudo mkfs -t ext2 $@
+	echo -e "n\np\n1\n1\n2879\na\nw" | fdisk $@
+	sudo losetup $(LOOP_FDA) $@
 	dd if=$< bs=510 count=1 of=$@ conv=notrunc
 	sudo mount -t ext2 $(LOOP_FDA) /mnt/floppy
 	sudo mkdir /mnt/floppy/boot
 	sudo cp $(BUILD_DIR)/x86-16/loader /mnt/floppy/boot/ 
 	sudo umount $(LOOP_FDA)
 	sudo losetup -d $(LOOP_FDA)
-
-booting : $(BUILD_DIR)/floppy.img
+	
+booting : $(BUILD_DIR)/bootloader.img
 	qemu-system-i386 -fda $^ -boot a
 
 
