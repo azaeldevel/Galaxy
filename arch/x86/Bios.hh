@@ -1,7 +1,11 @@
 
-
 #ifndef OCTETOS_OS_KERNEL_BIOS_HH
 #define OCTETOS_OS_KERNEL_BIOS_HH
+
+/*
+ * Copyright (C) 2022 Azael R. <azael.devel@gmail.com>
+ * All rights reserved
+ */
 
 #include "../../meta/defines.hh"
 

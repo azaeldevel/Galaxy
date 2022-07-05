@@ -1,4 +1,9 @@
 
+/*
+ * Copyright (C) 2022 Azael R. <azael.devel@gmail.com>
+ * All rights reserved
+ */
+
 #include "Bios.hh"
 
 

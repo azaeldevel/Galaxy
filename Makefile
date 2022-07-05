@@ -8,6 +8,7 @@ ifndef DISK_TYPE
 	DISK_TYPE = floppy
 endif
 BOOTLOADER = cc
+LOOP_FDA = $(shell losetup -f)
 
 CC = i386-elf-gcc
 AS = i386-elf-as
@@ -18,9 +19,11 @@ CCFLAGS = $(CFLAGS) -std=c++20
 CFLAGS_32 = -m32 $(CFLAGS)
 CCFLAGS_32 = $(CFLAGS_32) -std=c++20
 
-ENTRY_POINT=-Wl,-e,0x7c00 -Wl,-Tbss,0x7c00 -Wl,-Tdata,0x7c00 -Wl,-Ttext,0x7c00
-LFLAGS=-Wl,--oformat=binary -nostdlib -fomit-frame-pointer -fno-builtin -nostartfiles -nodefaultlibs $(ENTRY_POINT)
+SECTION_MBR =-Wl,-e,0x7c00 -Wl,-Tbss,0x7c00 -Wl,-Tdata,0x7c00 -Wl,-Ttext,0x7c00
+LFLAGS_MBR=-Wl,--oformat=binary -nostdlib -fomit-frame-pointer -fno-builtin -nostartfiles -nodefaultlibs $(SECTION_MBR)
 
+SECTION_LOADER =-Wl,-e,0x8000 -Wl,-Tbss,0x8000 -Wl,-Tdata,0x8000 -Wl,-Ttext,0x8000
+LFLAGS_LOADER=-Wl,--oformat=binary -nostdlib -fomit-frame-pointer -fno-builtin -nostartfiles -nodefaultlibs $(SECTION_LOADER)
 
 .PRECIOUS: $(BUILD_DIR)/x86-16/%.s
 
@@ -28,14 +31,23 @@ LFLAGS=-Wl,--oformat=binary -nostdlib -fomit-frame-pointer -fno-builtin -nostart
 $(BUILD_DIR)/meta/%.o : meta/%.cc
 	$(CC) -c $^ -o $@ $(CCFLAGS_32)
 
-$(BUILD_DIR)/x86-16/%.s : arch/x86/%.cc
+$(BUILD_DIR)/x86-16/%-boot.s : arch/x86/%.cc
 	$(CC) -m16 -O2 -S $(LFLAGS) -o $@ $<
 
-$(BUILD_DIR)/x86-16/%.o : $(BUILD_DIR)/x86-16/%.s
+$(BUILD_DIR)/x86-16/%-boot.o : $(BUILD_DIR)/x86-16/%.s
 	$(AS) $< -o $@
 
-$(BUILD_DIR)/x86-16/boot-cc : $(BUILD_DIR)/x86-16/boot.o  $(BUILD_DIR)/x86-16/Bios.o
+$(BUILD_DIR)/x86-16/%-loader.s : arch/x86/%.cc
+	$(CC) -m16 -O2 -S $(LFLAGS) -o $@ $<
+
+$(BUILD_DIR)/x86-16/%-loader.o : $(BUILD_DIR)/x86-16/%.s
+	$(AS) $< -o $@
+	
+$(BUILD_DIR)/x86-16/boot-cc : $(BUILD_DIR)/x86-16/boot-boot.o  $(BUILD_DIR)/x86-16/Bios-boot.o
 	$(LD) -o $@ --oformat binary -e booting -Ttext 0x7c00 $^
+	
+$(BUILD_DIR)/x86-16/loader : $(BUILD_DIR)/x86-16/loader-loader.o  $(BUILD_DIR)/x86-16/Bios-loader.o
+	$(LD) -o $@ --oformat binary -e booting -Ttext 0x8000 $^
 
 $(BUILD_DIR)/x86-16/boot-s : arch/x86/boot.s
 	$(AS) $< -o $(BUILD_DIR)/x86-16/boot.o
@@ -45,12 +57,23 @@ show: $(BUILD_DIR)/x86-16/boot-$(BOOTLOADER)
 	@cat $^|hexdump -C
 	@ndisasm -b 16 $^
 
-$(BUILD_DIR)/floppy.img : $(BUILD_DIR)/x86-16/boot-$(BOOTLOADER)
-	dd if=/dev/zero of=$(BUILD_DIR)/floppy.img count=1440 bs=1k
-	parted -s $@ mktable msdos
-	parted -s $@ mkpart primary fat32 1 "100%"
-	parted -s $@ set 1 boot on
+$(BUILD_DIR)/floppy.img : $(BUILD_DIR)/x86-16/boot-$(BOOTLOADER) $(BUILD_DIR)/x86-16/loader
+	#dd if=/dev/zero of=$(BUILD_DIR)/floppy.img count=1440 bs=1k
+	qemu-img create -f raw $(BUILD_DIR)/floppy.img 1440k
+	mkfs.msdos -s 1 $(BUILD_DIR)/floppy.img
+	sudo losetup $(LOOP_FDA) $(BUILD_DIR)/floppy.img
+	#sudo mkfs -t ext2 $(LOOP_FDA)
+	#sudo parted $(LOOP_FDA) mktable msdos
+	#sudo parted $(LOOP_FDA) mkpart primary ext2 1 720k
+	#sudo parted $(LOOP_FDA) set 1 boot on
+	sudo mount $(LOOP_FDA) /mnt/floppy/
+	sudo mkdir /mnt/floppy/boot
+	sudo cp $(BUILD_DIR)/x86-16/loader /mnt/floppy/boot/ 
+	sudo umount $(LOOP_FDA)
+	sudo losetup -d $(LOOP_FDA)
 	dd if=$< bs=510 count=1 of=$@ conv=notrunc
+	
+	
 
 booting : $(BUILD_DIR)/floppy.img
 	qemu-system-i386 -fda $^ -boot a
