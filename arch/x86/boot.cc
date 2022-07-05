@@ -21,5 +21,5 @@ extern "C" void booting()
 	bios.print('.');
 	bios.print('.');
 	bios.print('.');
-	
+	//bios.print("Booting...");
 }

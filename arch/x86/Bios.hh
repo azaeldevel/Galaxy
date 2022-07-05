@@ -28,7 +28,7 @@ public:
 	
 protected:
 	inline void outb(uint16 port, uint8 val);
-	inline uint8 inb(uint16 port);		
+	inline uint8 inb(uint16 port);
 	inline void interrup(byte service,byte function,byte parameter);
 	
 };

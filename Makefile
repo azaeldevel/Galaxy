@@ -8,52 +8,50 @@ ifndef DISK_TYPE
 	DISK_TYPE = floppy
 endif
 BOOT_TYPE = cc
-BOOT_SECTION = 0x7c00
-LOADER_SECTION = 0x8000
+BOOT_ADDRESS = 0x7c00
+LOADER_ADDRESS = 0x8000
 LOOP_FDA = $(shell losetup -f)
 
 CC = i386-elf-gcc
 AS = i386-elf-as
 LD = i386-elf-ld
 
-CFLAGS = -O2 -w -nostdlib -fomit-frame-pointer -fno-builtin -fno-stack-protector  -trigraphs  -fno-exceptions -fno-rtti -nodefaultlibs
-CCFLAGS = $(CFLAGS) -std=c++20
+FLAGS_GENERIC = -O2 -nostdlib -fomit-frame-pointer -fno-builtin -nodefaultlibs -fno-exceptions -fno-rtti -ffreestanding -fno-stack-protector
+CFLAGS =  $(FLAGS_GENERIC) -w -trigraphs -nostartfiles
+CCFLAGS = $(CFLAGS)
 CFLAGS_32 = -m32 $(CFLAGS)
-CCFLAGS_32 = $(CFLAGS_32) -std=c++20
+CCFLAGS_32 = $(CFLAGS_32)
 
-SECTION_MBR =-Wl,-e,$(BOOT_SECTION) -Wl,-Tbss,$(BOOT_SECTION) -Wl,-Tdata,$(BOOT_SECTION) -Wl,-Ttext,$(BOOT_SECTION)
-LFLAGS_MBR=-Wl,--oformat=binary -nostdlib -fomit-frame-pointer -fno-builtin -nostartfiles -nodefaultlibs $(SECTION_MBR)
+SECTION_MBR =-Wl,-e,$(BOOT_ADDRESS) -Wl,-Tbss,$(BOOT_ADDRESS) -Wl,-Tdata,$(BOOT_ADDRESS) -Wl,-Ttext,$(BOOT_ADDRESS)
+LFLAGS_MBR=-Wl,--oformat=binary $(CCFLAGS) $(SECTION_MBR) -m16
 
-SECTION_LOADER =-Wl,-e,$(LOADER_SECTION) -Wl,-Tbss,$(LOADER_SECTION) -Wl,-Tdata,$(LOADER_SECTION) -Wl,-Ttext,$(LOADER_SECTION)
-LFLAGS_LOADER=-Wl,--oformat=binary -nostdlib -fomit-frame-pointer -fno-builtin -nostartfiles -nodefaultlibs $(SECTION_LOADER)
+LOADER_SECTION =-Wl,-e,$(LOADER_ADDRESS) -Wl,-Tbss,$(LOADER_ADDRESS) -Wl,-Tdata,$(LOADER_ADDRESS) -Wl,-Ttext,$(LOADER_ADDRESS)
+LFLAGS_LOADER=-Wl,--oformat=binary $(CCFLAGS) $(LOADER_SECTION) -m16
 
-.PRECIOUS: $(BUILD_DIR)/x86-16/%.s
+.PRECIOUS : build/x86-16/Bios-boot.s build/x86-16/boot-boot.s
 
 	
 $(BUILD_DIR)/meta/%.o : meta/%.cc
 	$(CC) -c $^ -o $@ $(CCFLAGS_32)
 
 $(BUILD_DIR)/x86-16/%-boot.s : arch/x86/%.cc
-	$(CC) -m16 -O2 -S $(LFLAGS) -o $@ $<
+	$(CC) -S $(LFLAGS_MBR) -o $@ $<
 
-$(BUILD_DIR)/x86-16/%-boot.o : $(BUILD_DIR)/x86-16/%.s
-	$(AS) $< -o $@
 
 $(BUILD_DIR)/x86-16/%-loader.s : arch/x86/%.cc
-	$(CC) -m16 -O2 -S $(LFLAGS) -o $@ $<
+	$(CC) -S $(LFLAGS_LOADER) -o $@ $<
 
-$(BUILD_DIR)/x86-16/%-loader.o : $(BUILD_DIR)/x86-16/%.s
-	$(AS) $< -o $@
+
 	
 $(BUILD_DIR)/x86-16/boot-cc : $(BUILD_DIR)/x86-16/boot-boot.o  $(BUILD_DIR)/x86-16/Bios-boot.o
-	$(LD) -o $@ --oformat binary -e booting -Ttext $(BOOT_SECTION) $^
+	$(LD) -o $@ --oformat binary -e booting -Ttext $(BOOT_ADDRESS) $^
 	
 $(BUILD_DIR)/x86-16/loader : $(BUILD_DIR)/x86-16/loader-loader.o  $(BUILD_DIR)/x86-16/Bios-loader.o
-	$(LD) -o $@ --oformat binary -e loading -Ttext $(LOADER_SECTION) $^
+	$(LD) -o $@ --oformat binary -e loading -Ttext $(LOADER_ADDRESS) $^
 
 $(BUILD_DIR)/x86-16/boot-s : arch/x86/boot.s
 	$(AS) $< -o $(BUILD_DIR)/x86-16/boot.o
-	$(LD) -o $@ --oformat binary -Ttext $(BOOT_SECTION) $(BUILD_DIR)/x86-16/boot.o
+	$(LD) -o $@ --oformat binary -Ttext $(BOOT_ADDRESS) $(BUILD_DIR)/x86-16/boot.o
 
 show: $(BUILD_DIR)/x86-16/boot-$(BOOT_TYPE)
 	@cat $^|hexdump -C
