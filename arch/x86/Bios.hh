@@ -10,7 +10,6 @@
 #include "../../meta/defines.hh"
 
 
-
 namespace kernel
 {
 
@@ -25,10 +24,10 @@ class Bios
 public:
 	void print(char);
 	void print(const char*);
-	
-protected:
 	void outb(uint16 port, uint8 val);
 	uint8 inb(uint16 port);
+	
+private:
 	inline void interrup(byte service,byte function,byte parameter);
 };
 
