@@ -11,7 +11,7 @@
 extern "C" void booting()
 {
 	kernel::Bios bios;
-	bios.print('B');
+	/*bios.print('B');
 	bios.print('o');
 	bios.print('o');
 	bios.print('t');
@@ -20,6 +20,6 @@ extern "C" void booting()
 	bios.print('g');
 	bios.print('.');
 	bios.print('.');
-	bios.print('.');
-	//bios.print("Booting...");
+	bios.print('.');*/
+	bios.print("Booting...");
 }

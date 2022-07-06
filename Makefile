@@ -37,12 +37,9 @@ $(BUILD_DIR)/meta/%.o : meta/%.cc
 $(BUILD_DIR)/x86-16/%-boot.s : arch/x86/%.cc
 	$(CC) -S $(LFLAGS_MBR) -o $@ $<
 
-
 $(BUILD_DIR)/x86-16/%-loader.s : arch/x86/%.cc
 	$(CC) -S $(LFLAGS_LOADER) -o $@ $<
 
-
-	
 $(BUILD_DIR)/x86-16/boot-cc : $(BUILD_DIR)/x86-16/boot-boot.o  $(BUILD_DIR)/x86-16/Bios-boot.o
 	$(LD) -o $@ --oformat binary -e booting -Ttext $(BOOT_ADDRESS) $^
 	

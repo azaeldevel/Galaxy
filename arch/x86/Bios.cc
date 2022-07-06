@@ -24,15 +24,24 @@ void Bios::print(char c)
 
 
 
-void Bios::print(const char* string)
+/*void Bios::print(const char* string)
 {
 	asm volatile ("mov %[string], %%si;":: [string] "m" (string):"%si");
 	asm volatile ("movb 0x0E, %%ah;"	: : :"%ah");
 	uint8 i = 0;
-	while(string[i] != '\0')
+	while(string[i])
 	{
 		asm volatile ("lodsb;":::"%si");
 		asm volatile ("int $0x10": : :);
+		i++;
+	}
+}*/
+void Bios::print(const char* string)
+{
+	uint8 i = 0;
+	while(string[i])
+	{
+		print(string[i]);
 		i++;
 	}
 }
