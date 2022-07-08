@@ -30,11 +30,15 @@ inline void print(const char* string)
           ++string;
      }
 }
+inline void print_return()
+{
+	print('\n');
+	print('\r');
+}
 inline void print_ln(const char* string)
 {
 	print(string);
-	print('\n');
-	print('\r');
+	print_return();
 }
 inline void print_error(const char* string)
 {

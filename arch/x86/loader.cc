@@ -1,23 +1,9 @@
 
-/*
- * Copyright (C) 2022 Azael R. <azael.devel@gmail.com>
- * All rights reserved
- */
- 
-#include "Bios.hh"
+__asm__(".code16\n");
 
-extern "C" void loading()
+#include "Bios.cc"
+
+void main() 
 {
-	kernel::Bios bios;
-	bios.print('L');
-	bios.print('o');
-	bios.print('a');
-	bios.print('d');
-	bios.print('i');
-	bios.print('n');
-	bios.print('g');
-	bios.print('.');
-	bios.print('.');
-	bios.print('.');
-	
-}
+     kernel::bios::print_ln("Loading..");
+} 
