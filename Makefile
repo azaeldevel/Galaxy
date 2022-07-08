@@ -7,7 +7,7 @@ endif
 ifndef DISK_TYPE
 	DISK_TYPE = floppy
 endif
-BOOT_TYPE = cc
+BOOT_TYPE = c
 BOOT_ADDRESS = 0x7c00
 LOADER_ADDRESS = 0x8000
 LOOP_FDA = $(shell losetup -f)
@@ -35,7 +35,10 @@ $(BUILD_DIR)/meta/%.o : meta/%.cc
 	$(CC) -c $^ -o $@ $(CCFLAGS_32)
 
 $(BUILD_DIR)/x86-16/%-boot.s : arch/x86/%.cc
-	$(CC) -S $(LFLAGS_MBR) -o $@ $<
+	$(CC) -S $(LFLAGS_MBR) -o $@ $^
+
+$(BUILD_DIR)/x86-16/%-boot.s : arch/x86/%.cc
+	$(CC) -S $(LFLAGS_MBR) -o $@ $^
 
 $(BUILD_DIR)/x86-16/%-loader.s : arch/x86/%.cc
 	$(CC) -S $(LFLAGS_LOADER) -o $@ $<
@@ -46,20 +49,35 @@ $(BUILD_DIR)/x86-16/boot-cc : $(BUILD_DIR)/x86-16/boot-boot.o  $(BUILD_DIR)/x86-
 $(BUILD_DIR)/x86-16/loader : $(BUILD_DIR)/x86-16/loader-loader.o  $(BUILD_DIR)/x86-16/Bios-loader.o
 	$(LD) -o $@ --oformat binary -e loading -Ttext $(LOADER_ADDRESS) $^
 
-$(BUILD_DIR)/x86-16/boot-s : arch/x86/boot.s
-	$(AS) $< -o $(BUILD_DIR)/x86-16/boot.o
-	$(LD) -o $@ --oformat binary -Ttext $(BOOT_ADDRESS) $(BUILD_DIR)/x86-16/boot.o
+$(BUILD_DIR)/x86-16/boot-s : arch/x86/boot.s arch/x86/Bios/print_string.s
+	$(AS) arch/x86/Bios/print_string.s -o $(BUILD_DIR)/x86-16/print_string.o
+	$(AS) arch/x86/boot.s -o $(BUILD_DIR)/x86-16/boot.o
+	$(LD) -o $@ --oformat binary -Ttext $(BOOT_ADDRESS) $(BUILD_DIR)/x86-16/boot.o $(BUILD_DIR)/x86-16/print_string.o
+
+
+
+$(BUILD_DIR)/x86-16/boot-boot-c.o : arch/x86/boot.c
+	$(CC) -c -O2 -ffreestanding -Wall -Werror $^ -o $@
+	
+$(BUILD_DIR)/x86-16/boot-boot-c : $(BUILD_DIR)/x86-16/boot-boot-c.o
+	$(LD) -static -Tarch/x86/boot.ld -nostdlib --nmagic -o $@ $^
+
+$(BUILD_DIR)/x86-16/boot-c : $(BUILD_DIR)/x86-16/boot-boot-c
+	objcopy -O binary $^ $@
+
+$(BUILD_DIR)/x86-16/boot-nasm : arch/x86/boot.asm
+	nasm $^ -f bin -o $@
 
 show: $(BUILD_DIR)/x86-16/boot-$(BOOT_TYPE)
 	@cat $^|hexdump -C
 	@ndisasm -b 16 $^
 
-$(BUILD_DIR)/bootloader.img : $(BUILD_DIR)/x86-16/boot-$(BOOT_TYPE) $(BUILD_DIR)/x86-16/loader
+$(BUILD_DIR)/bootloader.img : $(BUILD_DIR)/x86-16/boot-$(BOOT_TYPE)
 	dd if=/dev/zero of=$@ bs=512 count=2880
 	printf '\x55' | dd bs=1 count=1 of=$@ conv=notrunc seek=510 count=1
 	printf '\xAA' | dd bs=1 count=1 of=$@ conv=notrunc seek=511 count=1
 	dd if=$< bs=510 count=1 of=$@ conv=notrunc
-	dd if=$(BUILD_DIR)/x86-16/loader of=$@ conv=notrunc seek=512
+	#dd if=$(BUILD_DIR)/x86-16/loader of=$@ conv=notrunc seek=512
 	
 
 $(BUILD_DIR)/kernel.img : $(BUILD_DIR)/x86-16/boot-$(BOOT_TYPE) $(BUILD_DIR)/x86-16/loader
