@@ -18,8 +18,8 @@ typedef unsigned int Index;
 typedef unsigned int Word;
 
 
-static Word PAGE_SIZE = 1024;
-static Word MEMORY_INPUTS = 512;
+//static Word PAGE_SIZE = 1024;
+//static Word MEMORY_INPUTS = 512;
 
 }
 

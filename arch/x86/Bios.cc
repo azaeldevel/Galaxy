@@ -4,54 +4,53 @@
  * All rights reserved
  */
 
-#include "Bios.hh"
-
-
-
-
-namespace kernel
+namespace kernel::bios
 {
 
 
-void Bios::print(char c)
+inline void interrup(unsigned char service,unsigned char function,unsigned char parameter)
+{
+	asm volatile ("movb %[function], %%ah;": : [function] "g" (function) :"%ah");
+	asm volatile ("movb %[parameter], %%al;": : [parameter] "g" (parameter) :"%al");
+	asm volatile ("int %[service];": : [service] "g" (service) :);
+}
+
+
+
+
+inline void print(char c)
 {
 	interrup(0x10,0x0E,c);
 }
-void Bios::print(const char* string)
+inline void print(const char* string)
 {
-	uint8 i = 0;
-	while(string[i])
-	{
-		print(string[i]);
-		i++;
-	}
+     while(*string) 
+     {
+          print(*string);
+          ++string;
+     }
 }
-void Bios::print_ln(const char* string)
+inline void print_ln(const char* string)
 {
-	uint8 i = 0;
-	while(string[i])
-	{
-		print(string[i]);
-		i++;
-	}
+	print(string);
 	print('\n');
 	print('\r');
 }
-void Bios::print_error(const char* string)
+inline void print_error(const char* string)
 {
 	print_ln(string);
 }
-void Bios::outb(uint16 port, uint8 val)
+inline void outb(unsigned short port, unsigned char val)
 {
     asm volatile ( "outb %0, %1" : : "a"(val), "Nd"(port) );
 }
-uint8 Bios::inb(uint16 port)
+inline unsigned char inb(unsigned short port)
 {
-    uint8 ret;	
+    unsigned char ret;	
     asm volatile ( "inb %1, %0" : "=a"(ret) : "Nd"(port) );
     return ret;
 }
-bool Bios::read_disk(byte length, byte cylinder,byte head,byte sector,byte unit,uint16 load)
+inline bool read_disk(unsigned char length, unsigned char cylinder,unsigned char head,unsigned char sector,unsigned char unit,unsigned short load)
 {
 	bool status;
 	asm volatile ("movb 0x02, %%ah;": ::"%ah");
@@ -75,16 +74,5 @@ bool Bios::read_disk(byte length, byte cylinder,byte head,byte sector,byte unit,
 
 
 
-
-
-
-
-
-void Bios::interrup(kernel::byte service,kernel::byte function,kernel::byte parameter)
-{
-	asm volatile ("movb %[function], %%ah;": : [function] "g" (function) :"%ah");
-	asm volatile ("movb %[parameter], %%al;": : [parameter] "g" (parameter) :"%al");
-	asm volatile ("int %[service];": : [service] "g" (service) :);
-}
 
 }

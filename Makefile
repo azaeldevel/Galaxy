@@ -7,7 +7,9 @@ endif
 ifndef DISK_TYPE
 	DISK_TYPE = floppy
 endif
-BOOT_TYPE = cc
+
+
+BOOT_SUFFIX = cc
 BOOT_ADDRESS = 0x7c00
 LOADER_ADDRESS = 0x8000
 LOOP_FDA = $(shell losetup -f)
@@ -16,25 +18,12 @@ CC = i386-elf-gcc
 AS = i386-elf-as
 LD = i386-elf-ld
 
-FLAGS_GENERIC = -O2 -nostdlib -fomit-frame-pointer -fno-builtin -nodefaultlibs -fno-exceptions -fno-rtti -ffreestanding -fno-stack-protector
-CFLAGS =  $(FLAGS_GENERIC) -w -trigraphs -nostartfiles
-CCFLAGS = $(CFLAGS)
-CFLAGS_32 = -m32 $(CFLAGS)
-CCFLAGS_32 = $(CFLAGS_32)
+.PRECIOUS : $(BUILD_DIR)/x86-16/%.cc.s
 
-SECTION_MBR =-Wl,-e,$(BOOT_ADDRESS) -Wl,-Tbss,$(BOOT_ADDRESS) -Wl,-Tdata,$(BOOT_ADDRESS) -Wl,-Ttext,$(BOOT_ADDRESS)
-LFLAGS_MBR=-Wl,--oformat=binary $(CCFLAGS) $(SECTION_MBR) -m16
+$(BUILD_DIR)/x86-16/%.cc.s : arch/x86/%.cc
+	$(CC) -S -O2 -ffreestanding -Wall -Werror $^ -o $@
 
-LOADER_SECTION =-Wl,-e,$(LOADER_ADDRESS) -Wl,-Tbss,$(LOADER_ADDRESS) -Wl,-Tdata,$(LOADER_ADDRESS) -Wl,-Ttext,$(LOADER_ADDRESS)
-LFLAGS_LOADER=-Wl,--oformat=binary $(CCFLAGS) $(LOADER_SECTION) -m16
-
-.PRECIOUS : build/x86-16/Bios-boot.s build/x86-16/boot-boot.s
-
-
-
-
-
-$(BUILD_DIR)/x86-16/boot.cc.o : arch/x86/boot.cc
+$(BUILD_DIR)/x86-16/%.cc.o : $(BUILD_DIR)/x86-16/%.cc.s
 	$(CC) -c -O2 -ffreestanding -Wall -Werror $^ -o $@
 	
 $(BUILD_DIR)/x86-16/boot-boot-cc : $(BUILD_DIR)/x86-16/boot.cc.o
@@ -80,13 +69,13 @@ $(BUILD_DIR)/x86-16/boot-nasm : arch/x86/boot.asm
 
 
 
-show: $(BUILD_DIR)/x86-16/boot-$(BOOT_TYPE)
+show: $(BUILD_DIR)/x86-16/boot-$(BOOT_SUFFIX)
 	@cat $^|hexdump -C
 	@ndisasm -b 16 $^
 
 
 
-$(BUILD_DIR)/bootloader.img : $(BUILD_DIR)/x86-16/boot-$(BOOT_TYPE)
+$(BUILD_DIR)/bootloader.img : $(BUILD_DIR)/x86-16/boot-$(BOOT_SUFFIX)
 	dd if=/dev/zero of=$@ bs=512 count=2880
 	printf '\x55' | dd bs=1 count=1 of=$@ conv=notrunc seek=510 count=1
 	printf '\xAA' | dd bs=1 count=1 of=$@ conv=notrunc seek=511 count=1

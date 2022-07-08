@@ -10,12 +10,9 @@
 #include "../../meta/defines.hh"
 
 
-namespace kernel
+namespace kernel::bios
 {
 
-class Bios
-{
-public:
 	void print(char);
 	void print(const char*);
 	void print_ln(const char*);
@@ -24,10 +21,7 @@ public:
 	uint8 inb(uint16 port);
 	bool read_disk(byte length, byte cylinder,byte head,byte sector,byte unit,uint16 load);
 	
-private:
 	inline void interrup(byte service,byte function,byte parameter);
-};
-
-
+	
 }
 #endif
