@@ -1,34 +1,48 @@
-#generate 16-bit code
 .code16
+.section .data
+    
+.section .text
+.global booting
+.type booting, @function
+.globl booting;
 
-#hint the assembler that here is the executable code located
-.text
-.globl _start;
-#boot code entry
-_start:
-      jmp _boot                           #jump to boot code
-      welcome: .asciz "Booting..\n\r"  #here we define the string
+booting:
+	movb $'B' , %al
+	movb $0x0e, %ah
+	int  $0x10
 
-     .macro mWriteString str              #macro which calls a function to print a string
-          leaw  \str, %si
-          call .writeStringIn
-     .endm
+	movb $'o' , %al
+	movb $0x0e, %ah
+	int  $0x10
 
-     #function to print the string
-     .writeStringIn:
-          lodsb
-          orb  %al, %al
-          jz   .writeStringOut
-          movb $0x0e, %ah
-          int  $0x10
-          jmp  .writeStringIn
-     .writeStringOut:
-     ret
+	movb $'o' , %al
+	movb $0x0e, %ah
+	int  $0x10
+	
+	movb $'t' , %al
+	movb $0x0e, %ah
+	int  $0x10
 
-_boot:
-     mWriteString welcome
+	movb $'i' , %al
+	movb $0x0e, %ah
+	int  $0x10
 
-     #move to 510th byte from the start and append boot signature
-     . = _start + 510
-     .byte 0x55
-     .byte 0xaa 
+	movb $'n' , %al
+	movb $0x0e, %ah
+	int  $0x10
+
+	movb $'g' , %al
+	movb $0x0e, %ah
+	int  $0x10
+
+	movb $'.' , %al
+	movb $0x0e, %ah
+	int  $0x10
+
+	movb $'.' , %al
+	movb $0x0e, %ah
+	int  $0x10
+	
+. = booting + 510
+.byte 0x55
+.byte 0xaa 

@@ -9,7 +9,7 @@ ifndef DISK_TYPE
 endif
 
 
-BOOT_SUFFIX = cc
+BOOT_SUFFIX = gas
 BOOT_ADDRESS = 0x7c00
 LOADER_ADDRESS = 0x8000
 LOOP_FDA = $(shell losetup -f)
@@ -33,10 +33,10 @@ $(BUILD_DIR)/x86-16/boot-cc : $(BUILD_DIR)/x86-16/boot-cc.bin
 	objcopy -O binary $^ $@
 	
 	
-$(BUILD_DIR)/x86-16/loader-cc : $(BUILD_DIR)/x86-16/loader.cc.o
+$(BUILD_DIR)/x86-16/loader-cc.bin : $(BUILD_DIR)/x86-16/loader.cc.o
 	$(LD) -static -Tarch/x86/loader.ld -nostdlib --nmagic -o $@ $^
 
-$(BUILD_DIR)/x86-16/loader-cc : $(BUILD_DIR)/x86-16/loader-cc
+$(BUILD_DIR)/x86-16/loader-cc : $(BUILD_DIR)/x86-16/loader-cc.bin
 	objcopy -O binary $^ $@
 
 
@@ -70,6 +70,15 @@ $(BUILD_DIR)/x86-16/boot-nasm : arch/x86/boot.asm
 
 
 
+$(BUILD_DIR)/x86-16/boot-gas : arch/x86/boot.s
+	$(AS) $< -o $(BUILD_DIR)/x86-16/boot.o
+	$(LD) -o $@ -e booting --oformat binary -Ttext $(BOOT_ADDRESS) $(BUILD_DIR)/x86-16/boot.o
+
+
+
+$(BUILD_DIR)/x86-16/loader-gas : arch/x86/loader.s
+	$(AS) $< -o $(BUILD_DIR)/x86-16/loader.o
+	$(LD) -o $@ -e loader --oformat binary -Ttext $(LOADER_ADDRESS) $(BUILD_DIR)/x86-16/loader.o
 
 
 
