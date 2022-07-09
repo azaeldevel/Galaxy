@@ -1,13 +1,22 @@
-ENTRY(main);
+ENTRY(loading);
 SECTIONS
 {
-    . = 0x7C00;
-    .text : AT(0x7C00)
+    . = 0x8000;
+    .text : AT(0x8000)
     {
         *(.text);
     }
-    .sig : AT(0x7DFE)
+    .rodata : 
     {
-        SHORT(0xaa55);
-    }
+		*(.rodata*)
+	}
+	.data : 
+	{
+		*(.data*)
+	}
+	.bss : 
+	{
+		*(.bss*)
+	}
+	
 }

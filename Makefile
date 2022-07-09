@@ -70,15 +70,13 @@ $(BUILD_DIR)/x86-16/boot-nasm : arch/x86/boot.asm
 
 
 
-$(BUILD_DIR)/x86-16/boot-gas : arch/x86/boot.s
-	$(AS) $< -o $(BUILD_DIR)/x86-16/boot.o
-	$(LD) -o $@ -e booting --oformat binary -Ttext $(BOOT_ADDRESS) $(BUILD_DIR)/x86-16/boot.o
-
-
+$(BUILD_DIR)/x86-16/boot-gas :  arch/x86/boot.s arch/x86/Bios/print_char.s
+	$(AS) -o $@.o $^
+	$(LD) -o $@ -e booting --oformat binary -T arch/x86/boot.ld  $@.o
 
 $(BUILD_DIR)/x86-16/loader-gas : arch/x86/loader.s
 	$(AS) $< -o $(BUILD_DIR)/x86-16/loader.o
-	$(LD) -o $@ -e loader --oformat binary -Ttext $(LOADER_ADDRESS) $(BUILD_DIR)/x86-16/loader.o
+	$(LD) -o $@ -e loader --oformat binary -T arch/x86/loader.ld  $(BUILD_DIR)/x86-16/loader.o
 
 
 
@@ -94,8 +92,6 @@ $(BUILD_DIR)/bootloader.img : $(BUILD_DIR)/x86-16/boot-$(BOOT_SUFFIX) $(BUILD_DI
 	printf '\xAA' | dd bs=1 count=1 of=$@ conv=notrunc seek=511 count=1
 	dd if=$< bs=510 count=1 of=$@ conv=notrunc
 	dd if=$(BUILD_DIR)/x86-16/loader-$(BOOT_SUFFIX) of=$@ conv=notrunc seek=512
-	
-
 	
 booting : $(BUILD_DIR)/bootloader.img
 	qemu-system-i386 -fda $^ -boot a

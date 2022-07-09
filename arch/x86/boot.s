@@ -1,10 +1,12 @@
 .code16
 .section .data
+    msg: .asciz "Booting.."
     
 .section .text
 .global booting
 .type booting, @function
 .globl booting;
+
 
 booting:
 	movb $'B' , %al
@@ -43,6 +45,6 @@ booting:
 	movb $0x0e, %ah
 	int  $0x10
 	
-. = booting + 510
-.byte 0x55
-.byte 0xaa 
+	call print_char 
+	
+	ret

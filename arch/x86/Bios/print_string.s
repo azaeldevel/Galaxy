@@ -1,15 +1,18 @@
-     .macro mWriteString str              #macro which calls a function to print a string
-          leaw  \str, %si
-          call .writeStringIn
-     .endm
+.code16
+.section .data
+    
+    
+.section .text
+.global print_string
+.type print_string, @function
+.globl print_string
 
-     #function to print the string
-     .writeStringIn:
-          lodsb
-          orb  %al, %al
-          jz   .writeStringOut
-          movb $0x0e, %ah
-          int  $0x10
-          jmp  .writeStringIn
-     .writeStringOut:
-     ret
+print_string:
+	lodsb
+    orb  %al, %al
+	jz   done
+	movb $0x0e, %ah
+	int  $0x10
+	jmp  print_string
+	done:
+	ret

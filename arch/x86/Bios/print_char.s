@@ -1,7 +1,7 @@
-.code16 #generate 16-bit code
-.text #executable code location
-.globl print_char;
+.code16
 
 print_char:
-	int  $0x10
+	movb $'X' , %al
+	movb $0x0e, %ah
+	int  $0x10	
 	ret
